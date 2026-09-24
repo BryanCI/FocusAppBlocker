@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- BRAND COLORS -->
+    <color name="primary_purple">#B440FF</color>
+    <color name="neon_magenta">#B440FF</color>
+    <color name="premium_purple">#B440FF</color>
+    <color name="premium_green">#4ADE80</color>
+    <color name="premium_yellow">#FACC15</color>
+    <color name="premium_red">#FF3B30</color>
+
+    <!-- CORE DARK THEME -->
+    <color name="bg_screen">#000000</color>
+    <color name="bg_card_opal">#161616</color>
+    <color name="stroke_card_opal">#232323</color>
+    <color name="bg_inner_opal">#1E1E1E</color>
+    <color name="bg_ripple_opal">#2A2A2A</color>
+    <color name="bg_premium">#000000</color>
+
+    <!-- STATUS COLORS (DARK VARIANTS) -->
+    <color name="text_amber_opal">#FACC15</color>
+    <color name="bg_warning_icon_opal">#242200</color>
+    <color name="text_pill_warning">#FACC15</color>
+    <color name="stroke_pill_warning">#4D3D00</color>
+
+    <color name="text_success_opal">#4ADE80</color>
+    <color name="bg_success_icon_opal">#0F2A18</color>
+    <color name="bg_pill_green_dim">#0A2111</color>
+    <color name="stroke_pill_green">#1A3D22</color>
+
+    <color name="bg_icon_purple_opal">#1A002E</color>
+    <color name="bg_purple_icon">#1A002E</color>
+    <color name="bg_gold_icon">#2A1E05</color>
+    <color name="bg_blue_icon">#0A1A2E</color>
+    <color name="bg_orange_icon">#2A1A05</color>
+    <color name="bg_red_icon">#2A0A0A</color>
+    <color name="bg_chip_unselected">#1E1E1E</color>
+    <color name="stroke_chip_unselected">#2A2A2A</color>
+    <color name="bg_chip_selected">#2A154D</color>
+    <color name="stroke_chip_selected">#BF00FF</color>
+
+    <color name="bg_chip_infinity">#1A002E</color>
+    <color name="stroke_chip_infinity">#BF00FF</color>
+
+    <!-- TEXT -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#8E8E93</color>
+    <color name="text_tertiary">#4A4A4E</color>
+
+    <!-- SYSTEM -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+</resources>

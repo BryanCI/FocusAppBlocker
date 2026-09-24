@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="chart_height_fallback">180dp</dimen>
+    <dimen name="chip_stroke_selected">1dp</dimen>
+    <dimen name="zero">0dp</dimen>
+</resources>

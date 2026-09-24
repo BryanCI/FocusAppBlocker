@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base Layer: Deep Opal Gradient -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="32dp" />
+            <gradient
+                android:angle="270"
+                android:endColor="#12121A"
+                android:startColor="#2A2A40" />
+            <stroke
+                android:width="1dp"
+                android:color="#2E2E42" />
+        </shape>
+    </item>
+
+    <!-- Top Glass Inset Shadow/Glow -->
+    <item android:top="1dp" android:left="1dp" android:right="1dp">
+        <shape android:shape="rectangle">
+            <corners android:topLeftRadius="31dp" android:topRightRadius="31dp" />
+            <gradient
+                android:angle="270"
+                android:startColor="#1AFFFFFF"
+                android:endColor="#00FFFFFF"
+                android:centerY="0.1" />
+        </shape>
+    </item>
+
+    <!-- Top Highlight Line (1dp) -->
+    <item android:top="1dp" android:left="32dp" android:right="32dp" android:height="1dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#26FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- Subtle Diagonal Shine -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="32dp" />
+            <gradient
+                android:angle="135"
+                android:startColor="#06FFFFFF"
+                android:endColor="#00FFFFFF" />
+        </shape>
+    </item>
+</layer-list>

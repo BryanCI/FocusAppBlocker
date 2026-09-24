@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tooltipContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:id="@+id/tooltipBubble"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_gravity="top|end"
+        android:background="@drawable/bg_tooltip_semicircle"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp"
+        android:alpha="0"
+        android:scaleX="0"
+        android:scaleY="0"
+        android:pivotX="1.0"
+        android:pivotY="0.0">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Grant these Permissions"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textAlignment="center"/>
+
+    </LinearLayout>
+</FrameLayout>

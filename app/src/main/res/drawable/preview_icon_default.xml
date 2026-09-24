@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Glow -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <solid android:color="#40BF00FF" />
+            <padding android:bottom="4dp" android:left="4dp" android:right="4dp" android:top="4dp" />
+        </shape>
+    </item>
+    <!-- Background Gradient -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <gradient
+                android:angle="315"
+                android:endColor="#7C3AED"
+                android:startColor="#BF00FF"
+                android:type="linear" />
+            <stroke android:width="1dp" android:color="#40FFFFFF" />
+        </shape>
+    </item>
+    <!-- Inner Icon -->
+    <item
+        android:width="28dp"
+        android:height="28dp"
+        android:gravity="center">
+        <vector
+            android:width="28dp"
+            android:height="28dp"
+            android:viewportWidth="24"
+            android:viewportHeight="24">
+            <path
+                android:fillColor="#FFFFFF"
+                android:pathData="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.66,7 15,8.34 15,10V12H16V17H8V12H9V10C9,8.34 10.34,7 12,7M12,9C11.45,9 11,9.45 11,10V12H13V10C13,9.45 12.55,9 12,9Z" />
+        </vector>
+    </item>
+</layer-list>

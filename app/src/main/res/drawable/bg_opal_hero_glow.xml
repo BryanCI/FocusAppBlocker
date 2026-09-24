@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer Glow Shadow -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#4D7C3AED" />
+            <padding android:bottom="8dp" android:left="8dp" android:right="8dp" android:top="8dp" />
+        </shape>
+    </item>
+    <!-- Main Gradient -->
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:angle="315"
+                android:endColor="#7C3AED"
+                android:startColor="#A855F7"
+                android:type="linear" />
+            <size android:width="132dp" android:height="132dp" />
+        </shape>
+    </item>
+</layer-list>

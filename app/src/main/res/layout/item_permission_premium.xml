@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="20dp"
+    app:cardBackgroundColor="#161616"
+    app:cardElevation="0dp"
+    app:strokeWidth="1.5dp"
+    app:strokeColor="#262626">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp">
+
+        <FrameLayout
+            android:id="@+id/iconContainer"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_circle_icon">
+            <TextView
+                android:id="@+id/tvIconEmoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="22sp"
+                android:text="📊"/>
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="12dp">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Usage Access"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/tvSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Track app screen time"
+                android:textColor="#8A8A8E"
+                android:textSize="12sp"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/statusContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/grantedPillContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:background="@drawable/bg_score_pill"
+                android:backgroundTint="#0F2A18"
+                android:visibility="gone"
+                app:strokeWidth="1dp"
+                app:strokeColor="#1F4D2A"
+                android:layout_marginEnd="12dp">
+
+                <View android:id="@+id/greenDotOuter" android:layout_width="12dp" android:layout_height="12dp" android:background="@drawable/bg_circle_icon" android:backgroundTint="#4ADE80" android:alpha="0.28" />
+                <View android:id="@+id/greenDot" android:layout_width="7dp" android:layout_height="7dp" android:layout_marginStart="-9.5dp" android:background="@drawable/bg_circle_icon" android:backgroundTint="#4ADE80" />
+                <TextView android:id="@+id/grantedText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="GRANTED" android:textSize="10sp" android:textColor="#4ADE80" android:fontFamily="sans-serif-medium" android:textStyle="bold" android:letterSpacing="0.06" android:layout_marginStart="6dp" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFix"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:minWidth="88dp"
+                android:text="Grant"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:gravity="center"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                app:cornerRadius="18dp"
+                app:backgroundTint="#2D2D42"
+                app:strokeWidth="1.5dp"
+                app:strokeColor="#B440FF"
+                android:textColor="#FFFFFF"
+                android:elevation="6dp"
+                android:layout_marginEnd="12dp"/>
+
+            <ImageView
+                android:id="@+id/ivCheck"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_check"
+                app:tint="#4ADE80"
+                android:visibility="gone"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

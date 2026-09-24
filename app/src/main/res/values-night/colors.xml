@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- PRIMARY BRAND COLORS -->
+    <color name="primary_purple">#BF00FF</color>
+    <color name="neon_purple_premium">#BF00FF</color>
+    <color name="colorPrimaryPurple">#BF00FF</color>
+    <color name="neon_magenta">#BF00FF</color>
+
+    <!-- LUXURY ACCENTS -->
+    <color name="lilac_premium">#C27AFF</color>
+    <color name="bg_badge_purple_light">#15BF00FF</color>
+
+    <!-- LIGHTER SHADES FOR GRADIENTS/ACCENTS -->
+    <color name="colorPrimaryPurpleLight">#BF00FF</color>
+    <color name="colorPrimaryPurpleTint">#15BF00FF</color>
+
+    <!-- BACKGROUNDS -->
+    <color name="bg_screen">#121212</color>
+    <color name="bg_premium">#121212</color>
+    <color name="bgPrimary">#121212</color>
+    <color name="background_dark">#121212</color>
+    <color name="background_gradient_start">#121212</color>
+
+    <!-- CARD HIERARCHY -->
+    <color name="bg_card_hero">#161616</color>
+    <color name="bg_card">#161616</color>
+    <color name="card_premium">#161616</color>
+    <color name="bg_card_streak">#121214</color>
+    <color name="stroke_card">#262626</color>
+    <color name="bg_inner">#1E1E1E</color>
+
+    <!-- ACCENT COLORS -->
+    <color name="accent_green">#10B981</color>
+    <color name="accent_amber">#EAB308</color>
+    <color name="accent_orange">#F59E0B</color>
+    <color name="accent_blue">#3B82F6</color>
+    <color name="accent_red">#EF4444</color>
+    <color name="accent_gold">#FFD700</color>
+    <color name="accent_purple">#BF00FF</color>
+
+    <!-- TEXT COLORS -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="textPrimary">#FFFFFF</color>
+    <color name="text_secondary">#8A8A8E</color>
+    <color name="textSecondary">#8A8A8E</color>
+    <color name="text_secondary_premium">#8A8A8E</color>
+    <color name="text_tertiary">#6B7280</color>
+    <color name="text_label">#4A4A4A</color>
+    <color name="textTertiary">#6B7280</color>
+    <color name="text_grey">#8A8A8E</color>
+
+    <!-- STROKES & DIVIDERS -->
+    <color name="stroke_premium">#262626</color>
+    <color name="divider_grey">#1E1E1E</color>
+    <color name="track_color">#2A2A2A</color>
+
+    <!-- BADGES & ACCENTS -->
+    <color name="bg_pill_green">#10B981</color>
+    <color name="bg_pill_red">#EF4444</color>
+    <color name="bg_badge_green">#0E2A1A</color>
+    <color name="text_badge_green">#00D084</color>
+    <color name="bg_badge_purple">#15BF00FF</color>
+    <color name="neon_green">#00D084</color>
+    <color name="neon_blue">#4A9EFF</color>
+    <color name="chevron_grey">#4A4A4E</color>
+
+    <color name="bg_card_opal">#161616</color>
+    <color name="stroke_card_opal">#262626</color>
+    <color name="bg_inner_opal">#1E1E1E</color>
+
+    <color name="bg_warning_opal">#161616</color>
+    <color name="stroke_warning_opal">#2A1F1A</color>
+    <color name="bg_warning_icon_opal">#1F1810</color>
+    <color name="text_warning_opal">#A67C52</color>
+    <color name="stroke_pill_warning">#3A2A1A</color>
+    <color name="text_pill_warning">#D4A574</color>
+
+    <color name="bg_success_opal">#161616</color>
+    <color name="stroke_success_opal">#1E3A2A</color>
+    <color name="bg_success_icon_opal">#0F1F15</color>
+    <color name="text_success_opal">#10B981</color>
+
+    <color name="bg_ripple_opal">#1F1F1F</color>
+    <color name="text_amber_opal">#FBBF24</color>
+
+    <color name="bg_chip_infinity">#1E102A</color>
+    <color name="stroke_chip_infinity">#3A1F4A</color>
+    <color name="bg_icon_purple_opal">#2A103F</color>
+    <color name="bg_chip_unselected">#1E1E1E</color>
+    <color name="stroke_chip_unselected">#262626</color>
+    <color name="bg_chip_selected">#262626</color>
+    <color name="stroke_chip_selected">#BF00FF</color>
+</resources>

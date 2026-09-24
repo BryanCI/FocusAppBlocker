@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ xmlns:app="http://schemas.android.com/apk/res-auto"
+ android:layout_width="match_parent"
+ android:layout_height="match_parent"
+ android:background="#0E0E0E">
+
+<ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:paddingTop="56dp" android:paddingBottom="100dp" android:paddingLeft="16dp" android:paddingRight="16dp">
+
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center" android:layout_marginTop="24dp">
+
+<TextView android:id="@+id/tvSecuritySummary" android:text="Unlocked 0/3 • At risk" android:textColor="#FF5252" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.08" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+
+<com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="20dp" app:cardBackgroundColor="#1E1E1E">
+
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+
+<LinearLayout android:id="@+id/itemPermissions" android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="72dp" android:gravity="center_vertical" android:padding="16dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground">
+<TextView android:layout_width="44dp" android:layout_height="44dp" android:text="🛡️" android:textSize="22sp" android:gravity="center"/>
+<LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="14dp">
+<TextView android:text="Permissions" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+<TextView android:id="@+id/tvPermissionsStatus" android:text="0/6 granted • Tap to manage" android:textColor="#FFC107" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+</LinearLayout>
+<TextView android:text="›" android:textColor="#6A6A6A" android:textSize="22sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+</LinearLayout>
+
+<View android:layout_width="match_parent" android:layout_height="1dp" android:background="#2A2A2A"/>
+
+<LinearLayout android:id="@+id/itemAppLock" android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="72dp" android:gravity="center_vertical" android:padding="16dp" android:clickable="true" android:focusable="true">
+<TextView android:layout_width="44dp" android:layout_height="44dp" android:text="🔒" android:textSize="22sp" android:gravity="center"/>
+<LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp">
+<TextView android:text="App Lock" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+<TextView android:id="@+id/tvAppLockStatus" android:text="Require authentication" android:textColor="#8A8A8A" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+</LinearLayout>
+<TextView android:text="›" android:textColor="#6A6A6A" android:textSize="22sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+</LinearLayout>
+
+<View android:layout_width="match_parent" android:layout_height="1dp" android:background="#2A2A2A"/>
+
+<LinearLayout android:id="@+id/itemStealth" android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="72dp" android:gravity="center_vertical" android:padding="16dp" android:clickable="true" android:focusable="true">
+<TextView android:layout_width="44dp" android:layout_height="44dp" android:text="👁️" android:textSize="22sp" android:gravity="center"/>
+<LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp">
+<TextView android:text="Stealth Mode" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+<TextView android:id="@+id/tvStealthStatus" android:text="Hide from recent apps" android:textColor="#8A8A8A" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+</LinearLayout>
+<TextView android:text="›" android:textColor="#6A6A6A" android:textSize="22sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+</LinearLayout>
+
+</LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+</LinearLayout>
+</ScrollView>
+</FrameLayout>

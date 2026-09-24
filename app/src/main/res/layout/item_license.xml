@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/ripple_rounded_12dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <TextView
+        android:id="@+id/libName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif-medium" />
+
+    <TextView
+        android:id="@+id/libLicense"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#8A8A8E"
+        android:textSize="12sp"
+        android:layout_marginTop="2dp" />
+
+    <TextView
+        android:id="@+id/btnViewLicense"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View license"
+        android:textColor="#BF00FF"
+        android:textSize="11sp"
+        android:layout_marginTop="4dp"
+        android:fontFamily="sans-serif-bold" />
+</LinearLayout>

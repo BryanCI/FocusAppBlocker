@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      // Allow users to read and write their own profile
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Special case: Allow reading a document if the user is migrating from it.
+      // In your app, this happens when a guest upgrades.
+      // For security, you might want to tighten this, but for now,
+      // we'll ensure the user can at least read their own target document.
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_premium"
+    android:fillViewport="true"
+    android:clipToPadding="false">
+
+    <!-- Use FrameLayout + gravity to center content vertically -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="64dp"
+        android:paddingBottom="40dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <!-- HEADLINE -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Reclaim your time.\nUse it better"
+                android:textColor="@color/white"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textAlignment="center"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- YEARS TEXT - INCREASED VISIBILITY -->
+            <TextView
+                android:id="@+id/tvYearsText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="In 2.3 years you could:"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textAlignment="center"
+                android:layout_marginBottom="32dp"/>
+
+            <!-- CHECKLIST -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="40dp">
+
+                <!-- ITEM 1 -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="14dp">
+                    <ImageView android:layout_width="26dp" android:layout_height="26dp" android:src="@drawable/ic_check_circle" app:tint="#22C55E" android:layout_marginTop="1dp"/>
+                    <TextView
+                        android:id="@+id/tvBullet1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:text="Learn a new hobby like guitar, painting, or cooking"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:lineSpacingExtra="2dp"/>
+                </LinearLayout>
+
+                <!-- ITEM 2 -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="14dp">
+                    <ImageView android:layout_width="26dp" android:layout_height="26dp" android:src="@drawable/ic_check_circle" app:tint="#22C55E" android:layout_marginTop="1dp"/>
+                    <TextView
+                        android:id="@+id/tvBullet2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:text="Read 116+ books and become an expert"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:lineSpacingExtra="2dp"/>
+                </LinearLayout>
+
+                <!-- ITEM 3 -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="14dp">
+                    <ImageView android:layout_width="26dp" android:layout_height="26dp" android:src="@drawable/ic_check_circle" app:tint="#22C55E" android:layout_marginTop="1dp"/>
+                    <TextView
+                        android:id="@+id/tvBullet3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:text="Study and switch to a new career path"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:lineSpacingExtra="2dp"/>
+                </LinearLayout>
+
+                <!-- ITEM 4 -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="14dp">
+                    <ImageView android:layout_width="26dp" android:layout_height="26dp" android:src="@drawable/ic_check_circle" app:tint="#22C55E" android:layout_marginTop="1dp"/>
+                    <TextView
+                        android:id="@+id/tvBullet4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:text="Spend 853 days with family and friends"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:lineSpacingExtra="2dp"/>
+                </LinearLayout>
+
+                <!-- ITEM 5 -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <ImageView android:layout_width="26dp" android:layout_height="26dp" android:src="@drawable/ic_check_circle" app:tint="#22C55E" android:layout_marginTop="1dp"/>
+                    <TextView
+                        android:id="@+id/tvBullet5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:text="Build better long-term habits and mental health"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:lineSpacingExtra="2dp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- CTA BUTTON -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLetsGo"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Let's go"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/neon_magenta"
+                app:cornerRadius="16dp"
+                app:strokeColor="#30BF00FF"
+                app:strokeWidth="1dp"
+                android:textColor="@color/white"/>
+
+        </LinearLayout>
+    </FrameLayout>
+</ScrollView>

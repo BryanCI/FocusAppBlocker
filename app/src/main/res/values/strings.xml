@@ -1,0 +1,89 @@
+<resources>
+    <string name="app_name">Focus AppBlocker</string>
+    <string name="accessibility_service_description">Used as a backup to detect and block restricted apps instantly.</string>
+
+    <!-- Onboarding Welcome -->
+    <string name="welcome_title">Focus AppBlocker</string>
+    <string name="welcome_headline">Time to take back your life.</string>
+    <string name="welcome_btn_text">Let\'s do it</string>
+
+    <!-- Onboarding Setup -->
+    <string name="setup_title">Now let\'s set you up.</string>
+    <string name="setup_subtext">We\'ll personalize Focus AppBlocker to keep your most important apps secure.</string>
+    <string name="setup_btn_continue">Continue</string>
+    <string name="setup_skip">Skip setup questions</string>
+    <string name="take_back_life_title">Time to take back your life</string>
+    <string name="take_back_life_subtext">Block distracting apps and reclaim hours of focus every day.</string>
+    <string name="take_back_life_btn_continue">Continue</string>
+    <string name="reclaim_time_title">Reclaim your time:</string>
+    <string name="potential_savings_title">We\'ve got your back. Let\'s take a look at your potential</string>
+    <string name="with_focus">With Focus</string>
+    <string name="take_back_life_sign_in_link">Already have an account? Sign in</string>
+
+    <!-- Onboarding Screen 4: Setup Permission -->
+    <string name="setup_permission_title">Now lets set you up</string>
+    <string name="setup_permission_subtext">How many hours do you spend onscreen a day? Lets find out!</string>
+    <string name="setup_permission_chip">Private &amp; secure</string>
+    <string name="setup_permission_info">This lets AppBlock show your screen-time insights and help you build healthier focus habits.</string>
+    <string name="setup_permission_btn">Give permission</string>
+    <string name="setup_permission_footer">You can change this anytime in Settings.</string>
+    <!-- Onboarding Sign In / Account -->
+    <string name="onboarding_headline">Let\'s personalize your experience</string>
+    <string name="onboarding_footer_note">You can upgrade to premium anytime</string>
+    <string name="onboarding_btn_create_account">Create Account</string>
+    <string name="onboarding_btn_google">Continue with Google</string>
+    <string name="onboarding_btn_guest">Continue as Guest</string>
+    <string name="onboarding_hint_full_name">Full Name</string>
+    <string name="onboarding_hint_email">Email Address</string>
+    <string name="onboarding_hint_password">Password</string>
+
+    <!-- Insights Screen -->
+    <string name="focus_score_label">Focus Score</string>
+    <string name="lvl_badge">LVL %1$d</string>
+    <string name="vs_yesterday">vs yesterday</string>
+    <string name="streak_text">%1$d day streak</string>
+    <string name="best_streak">Best: %1$d days</string>
+    <string name="text_rank_format">%1$d</string>
+    <string name="top_distractors_title">Top Distractors Today</string>
+    <string name="top_distractors_subtitle">Apps where you spend most of your time</string>
+    <string name="actionable_suggestions_title">Actionable Suggestions</string>
+    <string name="actionable_suggestions_subtitle">Personalized tips to improve focus</string>
+    <string name="detailed_insights_title">Detailed Insights</string>
+    <string name="statistics_card_title">Statistics</string>
+    <string name="statistics_card_subtitle">Weekly &amp; monthly reports, trends &amp; breakdown</string>
+    <string name="time_today_format">%1$dm today</string>
+    <string name="time_today_format_with_percent">%1$dm today • %2$d%%</string>
+    <string name="score_message_perfect">🔥 Perfect focus! You\'re in beast mode.</string>
+    <string name="score_message_great">Great focus! Keep it up.</string>
+    <string name="score_message_good">Good start, stay focused.</string>
+    <string name="score_message_refocus">Let\'s refocus tomorrow.</string>
+    <string name="night_penalty_tip">Night penalty starts in 23h at 11 PM.</string>
+    <string name="focus_goal_tip">Hit your 5h focus goal (in 5h 0m) for a +20%% bonus.</string>
+    <string name="block_button_text">Block</string>
+    <string name="blocked_button_text">✓ Blocked</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Profile</string>
+    <string name="premium_gold">PREMIUM GOLD</string>
+    <string name="deep_work_label">Deep Work</string>
+    <string name="apps_blocked_label">Apps Blocked</string>
+    <string name="achievements_header">ACHIEVEMENTS</string>
+    <string name="customize_header">CUSTOMIZE</string>
+    <string name="account_header">ACCOUNT</string>
+    <string name="made_with_love">Made with 💜 in Uganda</string>
+    <string name="app_version">Version 38.1.0</string>
+    <string name="row_premium_title">Premium</string>
+    <string name="row_premium_subtitle">Manage your subscription</string>
+    <string name="row_app_icon_title">App Icon</string>
+    <string name="row_app_icon_subtitle">Change how Focus looks</string>
+    <string name="row_appearance_title">Appearance</string>
+    <string name="row_appearance_subtitle">Dark mode and accent colors</string>
+    <string name="row_notifications_title">Notifications</string>
+    <string name="row_notifications_subtitle">Alerts and daily summaries</string>
+    <string name="row_privacy_title">Security &amp; Privacy</string>
+    <string name="row_privacy_subtitle">App lock and Permissions</string>
+    <string name="focus_time_format">%1$dh %2$dm</string>
+    <string name="member_since">Member since 2024</string>
+    <string name="unlock_all_features">Unlock all features</string>
+    <string name="strict_mode_subtitle">Prevents disabling focus sessions early + blocks settings</string>
+</resources>

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "627379786348",
+    "project_id": "focus-appblocker",
+    "storage_bucket": "focus-appblocker.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627379786348:android:db2e81bca8d2120c72fe49",
+        "android_client_info": {
+          "package_name": "com.example.appblocker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "627379786348-3pfdhgaialoll6dget0kcflu1o4p426p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.appblocker",
+            "certificate_hash": "ae8d64e648697776fb4dbdf7efe1f5123e0f91c2"
+          }
+        },
+        {
+          "client_id": "627379786348-hlts7879a8sstmgtqpivm63i5hbk1liv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcfYnNyJjkS2yl-Z4AvkmAWUJBupAW_mg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "627379786348-hlts7879a8sstmgtqpivm63i5hbk1liv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

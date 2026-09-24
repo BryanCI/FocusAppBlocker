@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_onboarding"
+    app:startDestination="@id/splashFragment">
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.example.appblocker.onboarding.SplashFragment"
+        tools:layout="@layout/fragment_splash">
+        <action
+            android:id="@+id/action_splashFragment_to_welcomeFragment"
+            app:destination="@id/welcomeFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/welcomeFragment"
+        android:name="com.example.appblocker.onboarding.WelcomeFragment"
+        tools:layout="@layout/fragment_welcome">
+        <action
+            android:id="@+id/action_welcomeFragment_to_takeBackLifeFragment"
+            app:destination="@id/takeBackLifeFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/takeBackLifeFragment"
+        android:name="com.example.appblocker.onboarding.TakeBackLifeFragment"
+        tools:layout="@layout/fragment_take_back_life">
+        <action
+            android:id="@+id/action_takeBackLifeFragment_to_howItWorksFragment"
+            app:destination="@id/howItWorksFragment" />
+        <action
+            android:id="@+id/action_takeBackLifeFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/howItWorksFragment"
+        android:name="com.example.appblocker.onboarding.HowItWorksFragment"
+        tools:layout="@layout/fragment_how_it_works">
+        <action
+            android:id="@+id/action_howItWorksFragment_to_benefitsFragment"
+            app:destination="@id/benefitsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/benefitsFragment"
+        android:name="com.example.appblocker.onboarding.BenefitsFragment"
+        tools:layout="@layout/fragment_benefits">
+        <action
+            android:id="@+id/action_benefitsFragment_to_setupPermissionFragment"
+            app:destination="@id/setupPermissionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/setupPermissionFragment"
+        android:name="com.example.appblocker.onboarding.SetupPermissionFragment"
+        tools:layout="@layout/fragment_setup_permission" />
+
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="com.example.appblocker.onboarding.SignInFragment"
+        tools:layout="@layout/fragment_sign_in">
+        <action
+            android:id="@+id/action_signInFragment_to_setupPermissionFragment"
+            app:destination="@id/setupPermissionFragment" />
+        <action
+            android:id="@+id/action_signInFragment_to_paywallFragment"
+            app:destination="@id/paywallFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/paywallFragment"
+        android:name="com.example.appblocker.onboarding.PaywallFragment"
+        tools:layout="@layout/fragment_paywall" />
+
+</navigation>

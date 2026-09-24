@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:repeatCount="infinite"
+    android:repeatMode="reverse">
+
+    <!-- Bigger scale 1.0 to 1.15 -->
+    <scale
+        android:duration="1800"
+        android:fromXScale="1.0"
+        android:fromYScale="1.0"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:toXScale="1.15"
+        android:toYScale="1.15" />
+
+    <!-- Subtle rotation -->
+    <rotate
+        android:duration="3600"
+        android:fromDegrees="-2"
+        android:toDegrees="2"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:repeatCount="infinite"
+        android:repeatMode="reverse" />
+
+    <!-- Opacity pulse -->
+    <alpha
+        android:duration="1800"
+        android:fromAlpha="0.8"
+        android:toAlpha="1.0" />
+</set>

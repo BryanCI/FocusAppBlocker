@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/navigation_block">
+
+    <fragment
+        android:id="@+id/navigation_block"
+        android:name="com.example.appblocker.BlockFragment"
+        android:label="Block"
+        tools:layout="@layout/fragment_block">
+        <action
+            android:id="@+id/action_navigation_block_to_setupPermissionFragmentMain"
+            app:destination="@id/setupPermissionFragmentMain" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_insights"
+        android:name="com.example.appblocker.ui.insights.InsightsFragment"
+        android:label="Insights"
+        tools:layout="@layout/fragment_insights">
+        <action
+            android:id="@+id/navigation_statistics"
+            app:destination="@id/ui_statistics_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_schedule"
+        android:name="com.example.appblocker.ui.scheduler.SchedulerFragment"
+        android:label="Scheduler"
+        tools:layout="@layout/fragment_scheduler" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.example.appblocker.ui.profile.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/navigation_paywall"
+            app:destination="@id/inAppPremiumPaywallFragment" />
+        <action
+            android:id="@+id/action_profile_to_securityPrivacy"
+            app:destination="@id/securityPrivacyFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/setupPermissionFragmentMain"
+        android:name="com.example.appblocker.onboarding.SetupPermissionFragment"
+        android:label="Permissions"
+        tools:layout="@layout/fragment_setup_permission" />
+
+    <fragment
+        android:id="@+id/ui_statistics_fragment"
+        android:name="com.example.appblocker.ui.statistics.StatisticsFragment"
+        android:label="Statistics"
+        tools:layout="@layout/fragment_statistics" />
+
+    <fragment
+        android:id="@+id/inAppPremiumPaywallFragment"
+        android:name="com.example.appblocker.ui.profile.InAppPremiumPaywallFragment"
+        tools:layout="@layout/fragment_in_app_premium_paywall" />
+
+    <fragment
+        android:id="@+id/securityPrivacyFragment"
+        android:name="com.example.appblocker.ui.profile.SecurityPrivacyFragment"
+        tools:layout="@layout/fragment_security_privacy" />
+
+    <fragment
+        android:id="@+id/navigation_login"
+        android:name="com.example.appblocker.ui.auth.LoginFragment"
+        android:label="Login" />
+
+    <fragment
+        android:id="@+id/navigation_register"
+        android:name="com.example.appblocker.ui.auth.RegisterFragment"
+        android:label="Register" />
+
+    <fragment
+        android:id="@+id/navigation_paywall"
+        android:name="com.example.appblocker.ui.profile.InAppPremiumPaywallFragment"
+        android:label="Paywall" />
+
+</navigation>
