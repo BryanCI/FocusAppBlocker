@@ -1,6 +1,10 @@
 package com.example.appblocker
 
 import android.app.Application
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
+import com.example.appblocker.security.AppLockManager
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,5 +23,16 @@ class FocusApp : Application() {
             val themeMode = ThemeManager.getThemeModeFlow(this@FocusApp).first()
             ThemeManager.applyTheme(themeMode)
         }
+
+        ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                // App came to foreground
+            }
+
+            override fun onStop(owner: LifecycleOwner) {
+                // App went to background
+                AppLockManager.lastBackgroundTime = System.currentTimeMillis()
+            }
+        })
     }
 }

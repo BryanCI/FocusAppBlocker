@@ -11,7 +11,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
 object NotificationHelper {
-    const val CHANNEL_FOCUS = "focus_reminders"
+    const val CHANNEL_FOCUS = "focus_sessions"
+    const val CHANNEL_REMINDERS = "focus_reminders"
     const val CHANNEL_SUMMARY = "morning_summary"
     const val CHANNEL_BLOCK = "block_alerts"
 
@@ -19,9 +20,21 @@ object NotificationHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+            // Focus Sessions Channel (New)
+            val sessionChannel = NotificationChannel(
+                CHANNEL_FOCUS,
+                "Focus Sessions",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Focus session completed"
+                enableVibration(true)
+                enableLights(true)
+                lightColor = Color.parseColor("#BF00FF")
+            }
+
             // Focus Reminders Channel
             val focusChannel = NotificationChannel(
-                CHANNEL_FOCUS,
+                CHANNEL_REMINDERS,
                 "Focus Reminders",
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
@@ -51,7 +64,7 @@ object NotificationHelper {
                 lightColor = Color.RED
             }
 
-            manager.createNotificationChannels(listOf(focusChannel, summaryChannel, blockChannel))
+            manager.createNotificationChannels(listOf(sessionChannel, focusChannel, summaryChannel, blockChannel))
         }
     }
 
@@ -67,7 +80,7 @@ object NotificationHelper {
         val title = "Don't break the chain"
         val body = "🔥 Day Streak! Keep your $streak day streak alive\nYou focused ${focusedMinutes}m today • 0/7 goal"
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_FOCUS)
+        val builder = NotificationCompat.Builder(context, CHANNEL_REMINDERS)
             .setSmallIcon(R.drawable.focussapp)
             .setContentTitle(title)
             .setContentText("🔥 Day Streak! Keep your $streak day streak alive")
@@ -83,6 +96,56 @@ object NotificationHelper {
                 notify(1001, builder.build())
             } catch (e: SecurityException) {
             }
+        }
+    }
+
+    fun showSessionEnded(context: Context, blockedAppsCount: Int, durationMillis: Long) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("open_tab", "insights")
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context, 0, intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val hours = durationMillis / 3600000
+        val mins = (durationMillis % 3600000) / 60000
+        val durationText = if (hours > 0) "${hours}h ${mins}m" else "${mins}m"
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_FOCUS)
+            .setSmallIcon(R.drawable.ic_bolt)
+            .setContentTitle("🎉 Focus session complete!")
+            .setContentText("You stayed focused for $durationText - $blockedAppsCount apps blocked")
+            .setStyle(NotificationCompat.BigTextStyle().bigText("Great job! You stayed focused while blocking distracting apps. Take a break."))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setColor(Color.parseColor("#BF00FF"))
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .addAction(R.drawable.ic_play, "Start again", pendingIntent)
+            .setVibrate(longArrayOf(0, 300, 100, 300))
+            .build()
+
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                notify(1001, notification)
+            } catch (e: SecurityException) {}
+        }
+    }
+
+    fun showOneMinuteWarning(context: Context) {
+        val notification = NotificationCompat.Builder(context, CHANNEL_FOCUS)
+            .setSmallIcon(R.drawable.ic_bolt)
+            .setContentTitle("1 minute left")
+            .setContentText("Almost there! Focus session ending soon.")
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setColor(Color.parseColor("#BF00FF"))
+            .setTimeoutAfter(60000)
+            .build()
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                notify(1002, notification)
+            } catch (e: SecurityException) {}
         }
     }
 

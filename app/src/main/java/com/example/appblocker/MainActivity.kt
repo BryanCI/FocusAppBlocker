@@ -3,11 +3,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.example.appblocker.security.AppLockManager
+import com.example.appblocker.security.BiometricHelper
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -28,6 +33,8 @@ class MainActivity : AppCompatActivity() {
         navProfile = findViewById(R.id.nav_profile)
         bottomContainer = findViewById(R.id.bottom_nav_container)
 
+        NotificationHelper.createNotificationChannels(this)
+
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val done = prefs.getBoolean("onboarding_done", false)
 
@@ -38,8 +45,28 @@ class MainActivity : AppCompatActivity() {
         if (done) {
             bottomContainer.visibility = View.VISIBLE
             setupPillBar()
+            checkAppLock()
         } else {
             bottomContainer.visibility = View.GONE
+        }
+    }
+
+    private fun checkAppLock() {
+        lifecycleScope.launch {
+            if (AppLockManager.shouldLock(this@MainActivity)) {
+                if (BiometricHelper.canAuthenticate(this@MainActivity)) {
+                    BiometricHelper.showBiometricPrompt(
+                        activity = this@MainActivity,
+                        onSuccess = {
+                            AppLockManager.isUnlocked = true
+                        },
+                        onError = { error ->
+                            Toast.makeText(this@MainActivity, "Authentication failed: $error", Toast.LENGTH_SHORT).show()
+                            finishAffinity()
+                        }
+                    )
+                }
+            }
         }
     }
 

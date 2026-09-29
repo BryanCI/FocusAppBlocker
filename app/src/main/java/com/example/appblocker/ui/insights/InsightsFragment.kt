@@ -34,22 +34,16 @@ class InsightsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.loadUsageStats()
 
         binding.cardStatistics.setOnClickListener {
             findNavController().navigate(R.id.navigation_statistics)
         }
 
         observeViewModel()
-        setupSwipeGestures(view)
     }
 
     private fun observeViewModel() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collect {
-                // Trigger refresh when block state changes
-                viewModel.loadUsageStats()
-            }
-        }
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.todayUsageStats.collect { usageStats ->
                 val ctx = context ?: return@collect
@@ -140,33 +134,6 @@ class InsightsFragment : Fragment() {
                 )
             }
             b.textBonusSuggestion.text = spannable
-        }
-    }
-
-    private fun setupSwipeGestures(view: View) {
-        var startX = 0f
-        var startY = 0f
-        view.setOnTouchListener { v, event ->
-            when (event.action) {
-                android.view.MotionEvent.ACTION_DOWN -> {
-                    startX = event.x
-                    startY = event.y
-                    v.performClick()
-                    true
-                }
-                android.view.MotionEvent.ACTION_UP -> {
-                    val endX = event.x
-                    val endY = event.y
-                    val diffX = endX - startX
-                    val diffY = endY - startY
-                    
-                    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 150) {
-                        // Removed swipe calls to activity as they are no longer defined
-                    }
-                    true
-                }
-                else -> false
-            }
         }
     }
 

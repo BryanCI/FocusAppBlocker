@@ -1,5 +1,7 @@
 package com.example.appblocker
 
+import android.app.ActivityManager
+import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -13,6 +15,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.appblocker.data.AppDatabase
 import kotlinx.coroutines.*
+import java.util.Locale
 
 class BlockSessionService : Service() {
 
@@ -130,8 +133,20 @@ class BlockSessionService : Service() {
     }
 
     private fun stopSession() {
+        val totalMillis = FocusSessionManager.getTotalSessionMillis(this)
         timerJob?.cancel()
         FocusSessionManager.endSession(this)
+
+        // Show notification if app is in background
+        if (!isAppInForeground()) {
+            serviceScope.launch(Dispatchers.IO) {
+                val db = AppDatabase.getDatabase(applicationContext)
+                val blockedCount = db.dailyFocusStatsDao().getBlockCountForDateSync(getCurrentDateString())
+                withContext(Dispatchers.Main) {
+                    NotificationHelper.showSessionEnded(this@BlockSessionService, blockedCount, totalMillis)
+                }
+            }
+        }
 
         // 2. Clear Room settings so app blockers stop
         serviceScope.launch(Dispatchers.IO) {
@@ -146,6 +161,17 @@ class BlockSessionService : Service() {
             stopForeground(true)
         }
         stopSelf()
+    }
+
+    private fun isAppInForeground(): Boolean {
+        val appProcess = ActivityManager.RunningAppProcessInfo()
+        ActivityManager.getMyMemoryState(appProcess)
+        return appProcess.importance == IMPORTANCE_FOREGROUND
+    }
+
+    private fun getCurrentDateString(): String {
+        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+        return sdf.format(java.util.Date())
     }
 
     private fun createNotificationChannel() {

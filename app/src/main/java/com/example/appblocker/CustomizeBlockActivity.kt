@@ -99,10 +99,70 @@ class CustomizeBlockActivity : AppCompatActivity() {
                         val keywordsList = blockedList.filter { it.isKeyword }
                         binding.tvAppsCount.text = appsList.size.toString()
                         binding.tvKeywordsCount.text = keywordsList.size.toString()
+                        
+                        updateAppsSubtitle(appsList)
+                        updateKeywordsSubtitle(keywordsList)
+                    }
+                }
+                launch {
+                    viewModel.allowedApps.collect { allowedList ->
+                        binding.tvAllowlistCount.text = allowedList.size.toString()
+                        updateAllowlistSubtitle(allowedList)
                     }
                 }
             }
         }
+    }
+
+    private fun updateAppsSubtitle(apps: List<com.example.appblocker.data.BlockedApp>) {
+        if (apps.isEmpty()) {
+            binding.tvAppsSubtitle.text = "None selected"
+            return
+        }
+        
+        val pm = packageManager
+        val names = apps.take(2).map {
+            try {
+                val info = pm.getApplicationInfo(it.pattern, 0)
+                pm.getApplicationLabel(info).toString()
+            } catch (e: Exception) {
+                it.pattern.split(".").lastOrNull() ?: it.pattern
+            }
+        }
+        
+        val text = names.joinToString(", ")
+        binding.tvAppsSubtitle.text = if (apps.size > 2) "$text +${apps.size - 2}" else text
+    }
+
+    private fun updateKeywordsSubtitle(keywords: List<com.example.appblocker.data.BlockedApp>) {
+        if (keywords.isEmpty()) {
+            binding.tvKeywordsSubtitle.text = "None selected"
+            return
+        }
+        
+        val names = keywords.take(2).map { it.pattern }
+        val text = names.joinToString(", ")
+        binding.tvKeywordsSubtitle.text = if (keywords.size > 2) "$text +${keywords.size - 2}" else text
+    }
+
+    private fun updateAllowlistSubtitle(allowed: List<com.example.appblocker.data.AllowedApp>) {
+        if (allowed.isEmpty()) {
+            binding.tvAllowlistSubtitle.text = "None selected"
+            return
+        }
+        
+        val pm = packageManager
+        val names = allowed.take(2).map {
+            try {
+                val info = pm.getApplicationInfo(it.packageName, 0)
+                pm.getApplicationLabel(info).toString()
+            } catch (e: Exception) {
+                it.packageName.split(".").lastOrNull() ?: it.packageName
+            }
+        }
+        
+        val text = names.joinToString(", ")
+        binding.tvAllowlistSubtitle.text = if (allowed.size > 2) "$text +${allowed.size - 2}" else text
     }
 
     override fun onResume() {

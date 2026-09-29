@@ -130,26 +130,48 @@ class AppPickerActivity : AppCompatActivity() {
             val allApps = appsFragment?.getSelectedApps() ?: emptyList()
             
             if (pickerType == TYPE_BLOCKED) {
+                // Get all current blocked packages
                 val currentBlocked = viewModel.blockedApps.first().filter { !it.isKeyword }.map { it.pattern }.toSet()
                 
-                allApps.forEach { app ->
-                    if (app.isChecked && !currentBlocked.contains(app.packageName)) {
-                        viewModel.toggleBlock(com.example.appblocker.AppInfo(name = app.appName, packageName = app.packageName, icon = ColorDrawable(), isBlocked = true))
-                    } else if (!app.isChecked && currentBlocked.contains(app.packageName)) {
-                        viewModel.toggleBlock(com.example.appblocker.AppInfo(name = app.appName, packageName = app.packageName, icon = ColorDrawable(), isBlocked = false))
+                // Get the final set of packages that SHOULD be blocked from the adapter
+                val selectedPackages = allApps.filter { it.isChecked }.map { it.packageName }.toSet()
+                
+                // 1. Unblock apps that were blocked but are now unchecked
+                currentBlocked.forEach { pkg ->
+                    if (!selectedPackages.contains(pkg)) {
+                        android.util.Log.d("BlocklistSave", "Unblocking $pkg")
+                        viewModel.toggleBlock(com.example.appblocker.AppInfo(name = "", packageName = pkg, icon = null, isBlocked = true))
+                    }
+                }
+                
+                // 2. Block apps that were not blocked but are now checked
+                allApps.filter { it.isChecked }.forEach { app ->
+                    if (!currentBlocked.contains(app.packageName)) {
+                        android.util.Log.d("BlocklistSave", "Blocking ${app.packageName}")
+                        viewModel.toggleBlock(com.example.appblocker.AppInfo(name = app.appName, packageName = app.packageName, icon = null, isBlocked = false))
                     }
                 }
             } else {
                 val currentAllowed = viewModel.allowedApps.first().map { it.packageName }.toSet()
-                allApps.forEach { app ->
-                    val isCurrentlyAllowed = currentAllowed.contains(app.packageName)
-                    if (app.isChecked && !isCurrentlyAllowed) {
-                        viewModel.toggleAllowApp(com.example.appblocker.AppInfo(name = app.appName, packageName = app.packageName, icon = ColorDrawable(), isBlocked = false, isAllowed = true))
-                    } else if (!app.isChecked && isCurrentlyAllowed) {
-                        viewModel.toggleAllowApp(com.example.appblocker.AppInfo(name = app.appName, packageName = app.packageName, icon = ColorDrawable(), isBlocked = false, isAllowed = false))
+                val selectedPackages = allApps.filter { it.isChecked }.map { it.packageName }.toSet()
+
+                // 1. Disallow apps that were allowed but are now unchecked
+                currentAllowed.forEach { pkg ->
+                    if (!selectedPackages.contains(pkg)) {
+                        android.util.Log.d("BlocklistSave", "Disallowing $pkg")
+                        viewModel.toggleAllowApp(com.example.appblocker.AppInfo(name = "", packageName = pkg, icon = null, isBlocked = false, isAllowed = true))
+                    }
+                }
+
+                // 2. Allow apps that were not allowed but are now checked
+                allApps.filter { it.isChecked }.forEach { app ->
+                    if (!currentAllowed.contains(app.packageName)) {
+                        android.util.Log.d("BlocklistSave", "Allowing ${app.packageName}")
+                        viewModel.toggleAllowApp(com.example.appblocker.AppInfo(name = app.appName, packageName = app.packageName, icon = null, isBlocked = false, isAllowed = false))
                     }
                 }
             }
+            android.util.Log.d("BlocklistSave", "Save complete for $pickerType")
             finish()
         }
     }

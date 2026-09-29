@@ -293,8 +293,19 @@ class MainViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    val blockedApps = dao.getAllBlockedApps().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-    val allowedApps = allowedDao.getAllAllowedApps().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    val blockedApps = dao.getAllBlockedApps().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    val allowedApps = allowedDao.getAllAllowedApps().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    // Timer flows for Bug 1
+    val remainingMillisFlow: Flow<Long> = flow {
+        while (true) {
+            emit(FocusSessionManager.getRemainingMillis(getApplication()))
+            delay(1000)
+        }
+    }.flowOn(Dispatchers.IO).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
+
+    val sessionTotalDuration: Long
+        get() = FocusSessionManager.getTotalSessionMillis(getApplication())
     val settings = settingsDao.getSettings().stateIn(viewModelScope, SharingStarted.Eagerly, null)
     val schedules = scheduleDao.getAllSchedules().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     val templates = templateDao.getAllTemplates().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())

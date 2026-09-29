@@ -92,6 +92,14 @@ object FocusSessionManager {
         return (endTime - System.currentTimeMillis()).coerceAtLeast(0L)
     }
 
+    fun getTotalSessionMillis(context: Context): Long {
+        val prefs = getPrefs(context)
+        val start = prefs.getLong(KEY_FOCUS_START, 0L)
+        val end = prefs.getLong(KEY_FOCUS_END, 0L)
+        if (start == 0L || end == 0L || end == Long.MAX_VALUE) return 0L
+        return (end - start).coerceAtLeast(0L)
+    }
+
     fun endSession(context: Context) {
         Log.d("BLOCKER", "endSession called - clearing all flags")
         // 1. Clear in-memory

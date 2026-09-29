@@ -176,6 +176,12 @@ class HybridAppsAdapter(
                 }
             }
 
+            cbApp?.setOnClickListener {
+                app.isChecked = cbApp.isChecked
+                notifyDataSetChanged()
+                onAppToggled(app)
+            }
+
             itemView.setOnClickListener {
                 app.isChecked = !app.isChecked
                 cbApp?.isChecked = app.isChecked

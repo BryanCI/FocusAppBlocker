@@ -64,11 +64,40 @@ class AppsFragment : Fragment() {
         binding.rvApps.layoutManager = LinearLayoutManager(requireContext())
         binding.rvApps.adapter = adapter
 
-        binding.chipGroups.setOnClickListener { adapter.setMode(HybridAppsAdapter.Mode.GROUPS) }
-        binding.chipAZ.setOnClickListener { adapter.setMode(HybridAppsAdapter.Mode.AZ) }
-        binding.chipSelected.setOnClickListener { adapter.setMode(HybridAppsAdapter.Mode.SELECTED) }
+        binding.chipGroups.setOnClickListener { 
+            binding.chipGroups.isChecked = true
+            binding.chipAZ.isChecked = false
+            binding.chipSelected.isChecked = false
+            adapter.setMode(HybridAppsAdapter.Mode.GROUPS) 
+        }
+        binding.chipAZ.setOnClickListener { 
+            binding.chipGroups.isChecked = false
+            binding.chipAZ.isChecked = true
+            binding.chipSelected.isChecked = false
+            adapter.setMode(HybridAppsAdapter.Mode.AZ) 
+        }
+        binding.chipSelected.setOnClickListener { 
+            binding.chipGroups.isChecked = false
+            binding.chipAZ.isChecked = false
+            binding.chipSelected.isChecked = true
+            adapter.setMode(HybridAppsAdapter.Mode.SELECTED) 
+        }
 
-        loadApps()
+        observeBlockedApps()
+    }
+
+    private fun observeBlockedApps() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (pickerType == AppPickerActivity.TYPE_BLOCKED) {
+                viewModel.blockedApps.collect {
+                    loadApps()
+                }
+            } else {
+                viewModel.allowedApps.collect {
+                    loadApps()
+                }
+            }
+        }
     }
 
     private fun handleToggle(item: Any) {
@@ -137,6 +166,21 @@ class AppsFragment : Fragment() {
 
             withContext(Dispatchers.Main) {
                 adapter.setGroups(realGroups)
+                
+                // Pre-check groups if they contain selected apps to ensure UI consistency
+                if (pickerType == AppPickerActivity.TYPE_BLOCKED) {
+                    val count = adapter.getAllApps().count { it.isChecked }
+                    if (count > 0) {
+                        // Initially expand groups that have selections
+                        realGroups.forEach { group ->
+                            if (group.apps.any { it.isChecked }) {
+                                group.isExpanded = true
+                            }
+                        }
+                        adapter.setGroups(realGroups)
+                    }
+                }
+
                 updateSelectedCount()
             }
         }
