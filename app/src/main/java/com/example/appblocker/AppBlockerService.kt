@@ -613,7 +613,7 @@ class AppBlockerService : Service() {
                 val themedContext = android.view.ContextThemeWrapper(this@AppBlockerService, android.R.style.Theme_Material_Light)
                 val view = android.view.LayoutInflater.from(themedContext).inflate(R.layout.overlay_blocked, null)
                 
-                view.findViewById<android.widget.TextView>(R.id.tvBlockedAppName)?.text = "$blockedPackage is blocked\nduring focus"
+                view.findViewById<android.widget.TextView>(R.id.tvBlockedAppName)?.text = "Stay focused! This app is blocked."
                 
                 view.findViewById<android.view.View>(R.id.btnGoHome)?.setOnClickListener {
                     android.util.Log.d("AppBlocker", "Go Home clicked")

@@ -64,9 +64,10 @@
             android:id="@+id/btnGoHome"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="@string/overlay_btn_home"
+            android:text="@string/overlay_btn_home_v2"
             android:textAllCaps="false"
-            android:textSize="15sp"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:textColor="#FFFFFF"
             android:background="@drawable/bg_button_rounded"
             android:backgroundTint="#2A2A30"/>

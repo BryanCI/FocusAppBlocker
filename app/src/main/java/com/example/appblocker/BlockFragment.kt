@@ -650,12 +650,12 @@ class BlockFragment : Fragment() {
 
     private fun setupQuickBlockListeners() {
         val b = _binding ?: return
+        b.btn1m.setOnClickListener { view -> handleQuickBlock(1, view) }
         b.btn15m.setOnClickListener { view -> handleQuickBlock(15, view) }
         b.btn30m.setOnClickListener { view -> handleQuickBlock(30, view) }
         b.btn1h.setOnClickListener { view -> handleQuickBlock(60, view) }
         b.btn2h.setOnClickListener { view -> handleQuickBlock(120, view) }
         b.btn4h.setOnClickListener { view -> handleQuickBlock(240, view) }
-        b.btn6h.setOnClickListener { view -> handleQuickBlock(360, view) }
         b.btnInf.setOnClickListener { view -> handleQuickBlock(-1, view) }
         b.btnCustom.setOnClickListener { showCustomDurationDialog() }
     }

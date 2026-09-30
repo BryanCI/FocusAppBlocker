@@ -17,10 +17,10 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
-    private lateinit var navBlock: TextView
-    private lateinit var navInsights: TextView
-    private lateinit var navScheduler: TextView
-    private lateinit var navProfile: TextView
+    private lateinit var navBlock: android.view.View
+    private lateinit var navInsights: android.view.View
+    private lateinit var navScheduler: android.view.View
+    private lateinit var navProfile: android.view.View
     private lateinit var bottomContainer: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         updateTabStyles(navController.currentDestination?.id ?: R.id.navigation_block)
     }
 
-    private fun selectTab(destId: Int, activeView: TextView) {
+    private fun selectTab(destId: Int, activeView: android.view.View) {
         try {
             if (navController.currentDestination?.id != destId) {
                 navController.navigate(destId)
@@ -122,12 +122,17 @@ class MainActivity : AppCompatActivity() {
         )
 
         tabs.forEach { (id, view) ->
+            val icon = (view as android.view.ViewGroup).getChildAt(0) as android.widget.ImageView
+            val text = view.getChildAt(1) as android.widget.TextView
+            
             if (id == currentId) {
                 view.setBackgroundResource(R.drawable.bg_pill_active)
-                view.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+                text.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+                icon.imageTintList = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, android.R.color.white))
             } else {
                 view.setBackgroundResource(0)
-                view.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray))
+                text.setTextColor(android.graphics.Color.parseColor("#8A8A8E"))
+                icon.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#8A8A8E"))
             }
         }
     }

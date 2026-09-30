@@ -33,9 +33,9 @@
     <color name="bg_blue_icon">#0A1A2E</color>
     <color name="bg_orange_icon">#2A1A05</color>
     <color name="bg_red_icon">#2A0A0A</color>
-    <color name="bg_chip_unselected">#1E1E1E</color>
-    <color name="stroke_chip_unselected">#2A2A2A</color>
-    <color name="bg_chip_selected">#2A154D</color>
+    <color name="bg_chip_unselected">#2A2A2A</color>
+    <color name="stroke_chip_unselected">#3A3A3A</color>
+    <color name="bg_chip_selected">#A020F0</color>
     <color name="stroke_chip_selected">#BF00FF</color>
 
     <color name="bg_chip_infinity">#1A002E</color>
@@ -43,7 +43,7 @@
 
     <!-- TEXT -->
     <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#8E8E93</color>
+    <color name="text_secondary">#6B6B6B</color>
     <color name="text_tertiary">#4A4A4E</color>
 
     <!-- SYSTEM -->
