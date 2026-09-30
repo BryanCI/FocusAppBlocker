@@ -152,6 +152,8 @@
             android:excludeFromRecents="true"
             android:launchMode="singleTop"
             android:showOnLockScreen="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
             android:directBootAware="true"
             android:theme="@style/Theme.AppBlocker" />
 
@@ -173,7 +175,9 @@
             android:enabled="true"
             android:exported="false"
             android:directBootAware="true"
-            android:foregroundServiceType="specialUse" />
+            android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="appBlocking" />
+        </service>
 
         <service
             android:name=".BlockSessionService"

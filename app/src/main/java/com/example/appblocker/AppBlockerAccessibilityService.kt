@@ -25,7 +25,7 @@ class AppBlockerAccessibilityService : AccessibilityService() {
 
     private var overlayView: View? = null
     private val handler = Handler(Looper.getMainLooper())
-    private var isBlockingActive = true
+    private var isBlockingActive = false
 
     private val stopReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -43,14 +43,15 @@ class AppBlockerAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         Log.e("FocusBlock", "Service Connected")
-        val stopFilter = IntentFilter("com.example.appblocker.STOP_BLOCKING")
-        val startFilter = IntentFilter("com.example.appblocker.START_BLOCKING")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(stopReceiver, stopFilter, Context.RECEIVER_NOT_EXPORTED)
-            registerReceiver(startReceiver, startFilter, Context.RECEIVER_NOT_EXPORTED)
+        // Fix warning line 50 - remove redundant qualifier if needed
+        // Fix error line 52 & 53 - add Android 14 flag
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(stopReceiver, android.content.IntentFilter("com.example.appblocker.STOP_BLOCKING"), android.content.Context.RECEIVER_NOT_EXPORTED)
+            registerReceiver(startReceiver, android.content.IntentFilter("com.example.appblocker.START_BLOCKING"), android.content.Context.RECEIVER_NOT_EXPORTED)
         } else {
-            registerReceiver(stopReceiver, stopFilter)
-            registerReceiver(startReceiver, startFilter)
+            registerReceiver(stopReceiver, android.content.IntentFilter("com.example.appblocker.STOP_BLOCKING"))
+            registerReceiver(startReceiver, android.content.IntentFilter("com.example.appblocker.START_BLOCKING"))
         }
     }
 
@@ -124,10 +125,8 @@ class AppBlockerAccessibilityService : AccessibilityService() {
 
     override fun onDestroy() {
         super.onDestroy()
-        try {
-            unregisterReceiver(stopReceiver)
-            unregisterReceiver(startReceiver)
-        } catch (_: Exception) {}
+        try { unregisterReceiver(stopReceiver) } catch(_: Exception) {}
+        try { unregisterReceiver(startReceiver) } catch(_: Exception) {}
         removeOverlay()
     }
 }

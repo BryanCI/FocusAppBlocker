@@ -130,26 +130,36 @@ class AppPickerActivity : AppCompatActivity() {
             val allApps = appsFragment?.getSelectedApps() ?: emptyList()
             
             if (pickerType == TYPE_BLOCKED) {
-                // Get all current blocked packages
-                val currentBlocked = viewModel.blockedApps.first().filter { !it.isKeyword }.map { it.pattern }.toSet()
-                
-                // Get the final set of packages that SHOULD be blocked from the adapter
-                val selectedPackages = allApps.filter { it.isChecked }.map { it.packageName }.toSet()
-                
-                // 1. Unblock apps that were blocked but are now unchecked
-                currentBlocked.forEach { pkg ->
-                    if (!selectedPackages.contains(pkg)) {
-                        android.util.Log.d("BlocklistSave", "Unblocking $pkg")
-                        viewModel.toggleBlock(com.example.appblocker.AppInfo(name = "", packageName = pkg, icon = null, isBlocked = true))
+                // Perform clear and save in one transaction logic
+                lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                    val dao = com.example.appblocker.data.AppDatabase.getDatabase(applicationContext).blockedAppDao()
+                    
+                    // 1. Get existing keywords so we don't delete them
+                    val currentList = dao.getBlockedAppsList()
+                    val keywords = currentList.filter { it.isKeyword }
+                    
+                    // 2. Delete all patterns (non-keywords)
+                    currentList.filter { !it.isKeyword }.forEach {
+                        dao.unblockApp(it.pattern)
                     }
-                }
-                
-                // 2. Block apps that were not blocked but are now checked
-                allApps.filter { it.isChecked }.forEach { app ->
-                    if (!currentBlocked.contains(app.packageName)) {
-                        android.util.Log.d("BlocklistSave", "Blocking ${app.packageName}")
-                        viewModel.toggleBlock(com.example.appblocker.AppInfo(name = app.appName, packageName = app.packageName, icon = null, isBlocked = false))
+                    
+                    // 3. Insert newly selected apps + WhatsApp variants
+                    allApps.filter { it.isChecked }.forEach { app ->
+                        dao.blockApp(com.example.appblocker.data.BlockedApp(pattern = app.packageName, isKeyword = false))
+                        
+                        // Fix WhatsApp: ensure business version is also blocked if regular is selected, and vice versa
+                        if (app.packageName == "com.whatsapp") {
+                            dao.blockApp(com.example.appblocker.data.BlockedApp(pattern = "com.whatsapp.w4b", isKeyword = false))
+                        } else if (app.packageName == "com.whatsapp.w4b") {
+                            dao.blockApp(com.example.appblocker.data.BlockedApp(pattern = "com.whatsapp", isKeyword = false))
+                        }
                     }
+                    
+                    // Sync to SharedPreferences for service quick access
+                    val newList = dao.getBlockedAppsList()
+                    val packages = newList.filter { !it.isKeyword }.map { it.pattern }.toSet()
+                    getSharedPreferences("block_prefs", Context.MODE_PRIVATE)
+                        .edit().putStringSet("blocked_apps", packages).apply()
                 }
             } else {
                 val currentAllowed = viewModel.allowedApps.first().map { it.packageName }.toSet()

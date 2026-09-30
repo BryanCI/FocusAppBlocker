@@ -130,7 +130,7 @@ class BlockFragment : Fragment() {
         }
 
         setupQuickBlockListeners()
-        b.btnEndEarly.setOnClickListener { handleEndEarlyClick() }
+        setupEndEarlyHoldListener()
 
         b.layoutBlockedPreviewContainer.setOnClickListener {
             val intent = Intent(requireContext(), CustomizeBlockActivity::class.java)
@@ -300,6 +300,51 @@ class BlockFragment : Fragment() {
         } else {
             FocusSessionManager.endSession(requireContext())
             showActiveState()
+        }
+    }
+
+    private var holdJob: kotlinx.coroutines.Job? = null
+
+    private fun setupEndEarlyHoldListener() {
+        val b = _binding ?: return
+        b.btnEndEarly.setOnTouchListener { _, event ->
+            when (event.action) {
+                android.view.MotionEvent.ACTION_DOWN -> {
+                    val prefs = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                    val isStrict = prefs.getBoolean("strict_mode", false)
+                    if (isStrict) {
+                        b.btnEndEarly.text = "Strict mode: Cannot end early"
+                        return@setOnTouchListener true
+                    }
+                    
+                    b.btnEndEarly.text = "Hold 5s to end..."
+                    holdJob = viewLifecycleOwner.lifecycleScope.launch {
+                        for (i in 5 downTo 1) {
+                            b.btnEndEarly.text = "Hold ${i}s..."
+                            kotlinx.coroutines.delay(1000)
+                        }
+                        // Show confirm dialog
+                        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                            .setTitle("End focus session early?")
+                            .setMessage("Your streak might break. Are you sure?")
+                            .setPositiveButton("Yes, end") { _, _ ->
+                                FocusSessionManager.endSession(requireContext())
+                                showActiveState()
+                            }
+                            .setNegativeButton("Keep focusing", null)
+                            .show()
+                        b.btnEndEarly.text = "End Session Early"
+                    }
+                    b.btnEndEarly.performClick()
+                    true
+                }
+                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                    holdJob?.cancel()
+                    b.btnEndEarly.text = "End Session Early"
+                    true
+                }
+                else -> false
+            }
         }
     }
 

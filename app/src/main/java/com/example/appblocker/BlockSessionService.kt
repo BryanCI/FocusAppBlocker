@@ -73,6 +73,15 @@ class BlockSessionService : Service() {
             db.settingsDao().updateQuickBlockEndTime(if (durationMinutes == -1) Long.MAX_VALUE else sessionEndTime)
         }
 
+        // Send START_BLOCKING broadcast to accessibility service
+        try {
+            val startIntent = Intent("com.example.appblocker.START_BLOCKING")
+            startIntent.setPackage(this.packageName)
+            sendBroadcast(startIntent)
+        } catch (e: Exception) {
+            Log.e("BLOCKER", "START_BLOCKING Broadcast fail", e)
+        }
+
         // 3. start countdown update loop
         startTimerLoop(sessionEndTime)
     }
@@ -135,32 +144,32 @@ class BlockSessionService : Service() {
     private fun stopSession() {
         val totalMillis = FocusSessionManager.getTotalSessionMillis(this)
         timerJob?.cancel()
-        FocusSessionManager.endSession(this)
 
-        // Show notification if app is in background
-        if (!isAppInForeground()) {
-            serviceScope.launch(Dispatchers.IO) {
-                val db = AppDatabase.getDatabase(applicationContext)
-                val blockedCount = db.dailyFocusStatsDao().getBlockCountForDateSync(getCurrentDateString())
-                withContext(Dispatchers.Main) {
-                    NotificationHelper.showSessionEnded(this@BlockSessionService, blockedCount, totalMillis)
-                }
-            }
-        }
-
-        // 2. Clear Room settings so app blockers stop
         serviceScope.launch(Dispatchers.IO) {
             val db = AppDatabase.getDatabase(applicationContext)
-            db.settingsDao().updateQuickBlockEndTime(0)
-        }
+            // Capture count before clearing
+            val blockedCount = try { db.blockedAppDao().getBlockedAppsList().size } catch(e: Exception) { 1 }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
-        } else {
-            @Suppress("DEPRECATION")
-            stopForeground(true)
+            withContext(Dispatchers.Main) {
+                // ALWAYS show celebration notification
+                NotificationHelper.showSessionEnded(this@BlockSessionService, blockedCount, totalMillis)
+            }
+
+            // 2. Clear Room settings so app blockers stop
+            db.settingsDao().updateQuickBlockEndTime(0)
+
+            withContext(Dispatchers.Main) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    stopForeground(STOP_FOREGROUND_REMOVE)
+                } else {
+                    @Suppress("DEPRECATION")
+                    stopForeground(true)
+                }
+                // FocusSessionManager.endSession MUST be last to ensure cache integrity during notification
+                FocusSessionManager.endSession(this@BlockSessionService)
+                stopSelf()
+            }
         }
-        stopSelf()
     }
 
     private fun isAppInForeground(): Boolean {

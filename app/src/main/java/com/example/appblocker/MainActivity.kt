@@ -27,6 +27,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        try{
+            val pm = getSystemService(android.content.Context.POWER_SERVICE) as android.os.PowerManager
+            if(!pm.isIgnoringBatteryOptimizations(packageName)){
+                val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                    data = android.net.Uri.parse("package:$packageName")
+                }
+                startActivity(intent)
+            }
+        }catch(_:Exception){}
+
         navBlock = findViewById(R.id.nav_block)
         navInsights = findViewById(R.id.nav_insights)
         navScheduler = findViewById(R.id.nav_scheduler)
@@ -46,8 +56,20 @@ class MainActivity : AppCompatActivity() {
             bottomContainer.visibility = View.VISIBLE
             setupPillBar()
             checkAppLock()
+            handleIntent(intent)
         } else {
             bottomContainer.visibility = View.GONE
+        }
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        intent?.getStringExtra("open_tab")?.let { tab ->
+            when (tab) {
+                "block" -> selectTab(R.id.navigation_block, navBlock)
+                "insights" -> selectTab(R.id.navigation_insights, navInsights)
+                "schedule" -> selectTab(R.id.navigation_schedule, navScheduler)
+                "profile" -> selectTab(R.id.navigation_profile, navProfile)
+            }
         }
     }
 

@@ -77,6 +77,15 @@ object NotificationHelper {
             PendingIntent.FLAG_IMMUTABLE
         )
 
+        val actionIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("open_tab", "block")
+        }
+        val actionPendingIntent = PendingIntent.getActivity(
+            context, 1, actionIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
         val title = "Don't break the chain"
         val body = "🔥 Day Streak! Keep your $streak day streak alive\nYou focused ${focusedMinutes}m today • 0/7 goal"
 
@@ -89,7 +98,7 @@ object NotificationHelper {
             .setColor(Color.parseColor("#BF00FF"))
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
-            .addAction(0, "Focus Now", pendingIntent)
+            .addAction(0, "Focus Now", actionPendingIntent)
 
         with(NotificationManagerCompat.from(context)) {
             try {
@@ -109,9 +118,18 @@ object NotificationHelper {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val hours = durationMillis / 3600000
-        val mins = (durationMillis % 3600000) / 60000
-        val durationText = if (hours > 0) "${hours}h ${mins}m" else "${mins}m"
+        val actionIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("open_tab", "block")
+        }
+        val actionPendingIntent = PendingIntent.getActivity(
+            context, 1, actionIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val mins = durationMillis / 60000
+        val secs = (durationMillis % 60000) / 1000
+        val durationText = if (mins == 0L) "${secs}s" else if (secs == 0L) "${mins}m" else "${mins}m ${secs}s"
 
         val notification = NotificationCompat.Builder(context, CHANNEL_FOCUS)
             .setSmallIcon(R.drawable.ic_bolt)
@@ -122,7 +140,7 @@ object NotificationHelper {
             .setColor(Color.parseColor("#BF00FF"))
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
-            .addAction(R.drawable.ic_play, "Start again", pendingIntent)
+            .addAction(R.drawable.ic_play, "Start again", actionPendingIntent)
             .setVibrate(longArrayOf(0, 300, 100, 300))
             .build()
 

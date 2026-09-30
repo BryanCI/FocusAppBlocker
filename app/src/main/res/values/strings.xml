@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">Focus AppBlocker</string>
-    <string name="accessibility_service_description">Used as a backup to detect and block restricted apps instantly.</string>
+    <string name="accessibility_service_description">Block distracting apps to stay focused.</string>
+    <string name="overlay_icon_text">F</string>
+    <string name="overlay_title">App Blocked</string>
+    <string name="overlay_subtitle">App is blocked during focus</string>
+    <string name="overlay_stay_focused">Stay focused</string>
+    <string name="overlay_emoji">🔒</string>
+    <string name="overlay_btn_home">Go to Home Screen</string>
+    <string name="overlay_footer">To unblock, end session in Focus app</string>
 
     <!-- Onboarding Welcome -->
     <string name="welcome_title">Focus AppBlocker</string>

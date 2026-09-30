@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.work.WorkManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,6 +51,19 @@ object FocusSessionManager {
             apply()
         }
         Log.d("BLOCKER", "Focus started infinite=$isInfinite start=$startTime end=$endTime strictAtStart=$strictNow")
+
+        // FIX - START SERVICE
+        try {
+            val svc = Intent(context, AppBlockerService::class.java)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                context.startForegroundService(svc)
+            } else {
+                context.startService(svc)
+            }
+            Log.d("AppBlocker", "SERVICE START REQUESTED from FocusSessionManager")
+        } catch(e: Exception){
+            Log.e("AppBlocker", "Failed to start AppBlockerService", e)
+        }
     }
 
     fun isSessionActive(context: Context): Boolean {
@@ -96,36 +110,35 @@ object FocusSessionManager {
         val prefs = getPrefs(context)
         val start = prefs.getLong(KEY_FOCUS_START, 0L)
         val end = prefs.getLong(KEY_FOCUS_END, 0L)
-        if (start == 0L || end == 0L || end == Long.MAX_VALUE) return 0L
+        if (start == 0L || end == 0L) return 0L
+        if (end == Long.MAX_VALUE) {
+            return (System.currentTimeMillis() - start).coerceAtLeast(0L)
+        }
         return (end - start).coerceAtLeast(0L)
     }
 
     fun endSession(context: Context) {
-        Log.d("BLOCKER", "endSession called - clearing all flags")
+        android.util.Log.d("AppBlocker", "STOPPING SESSION - clearing blocks")
+        
         // 1. Clear in-memory
         isActiveCache = false
         isInfiniteCache = false
         
-        // Broadcast to Accessibility immediately
-        try {
-            val intent = Intent("com.example.appblocker.STOP_BLOCKING")
-            intent.setPackage(context.packageName)
-            context.sendBroadcast(intent)
-        } catch (e: Exception) {
-            Log.e("BLOCKER", "Broadcast fail", e)
-        }
-        
+        // 2. Clear blocked list in SharedPreferences for immediate unblock
+        context.getSharedPreferences("block_prefs", Context.MODE_PRIVATE)
+            .edit().putStringSet("blocked_apps", emptySet()).apply()
+            
+        // 3. Reset session flags in app_prefs
         getPrefs(context).edit().apply {
             putBoolean(KEY_FOCUS_ACTIVE, false)
             putBoolean(KEY_FOCUS_INFINITE, false)
             putLong(KEY_FOCUS_START, 0L)
             putLong(KEY_FOCUS_END, 0L)
             putBoolean(KEY_STRICT_ACTIVE_START, false)
-            // DO NOT clear blocked_apps here - they should persist for next session
             commit() // Synchronous persistence
         }
 
-        // 3. Clear DataStore asynchronously too
+        // 4. Clear DataStore asynchronously too
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 context.settingsDataStore.edit { store ->
@@ -136,25 +149,38 @@ object FocusSessionManager {
                     store[booleanPreferencesKey(KEY_STRICT_ACTIVE_START)] = false
                 }
             } catch (e: Exception) {
-                Log.e("BLOCKER", "DataStore clear fail", e)
+                Log.e("AppBlocker", "DataStore clear fail", e)
             }
         }
 
-        // 4. Stop foreground service
+        // 5. Stop the blocker services
         try {
-            val intent = Intent(context, BlockSessionService::class.java)
-            context.stopService(intent)
-        } catch (e: Exception) {
-            Log.e("BLOCKER", "stopService fail", e)
+            val stopIntent = Intent(context, AppBlockerService::class.java)
+            context.stopService(stopIntent)
+            
+            val blockSvcIntent = Intent(context, BlockSessionService::class.java)
+            context.stopService(blockSvcIntent)
+            
+            // Also stop via broadcast for components that can't be reached by intent
+            context.sendBroadcast(Intent("com.example.appblocker.STOP_BLOCKING").apply {
+                setPackage(context.packageName)
+            })
+        } catch(e: Exception) {
+            android.util.Log.e("AppBlocker", "stop service fail", e)
         }
+        
+        // 6. Cancel WorkManager tasks
+        try {
+            WorkManager.getInstance(context).cancelAllWorkByTag("blocker")
+            WorkManager.getInstance(context).cancelUniqueWork("AppBlockerKeepAlive")
+        } catch(e: Exception) {}
 
-        // 5. Cancel notification
+        // 7. Cancel notification
         try {
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             nm.cancel(BlockSessionService.NOTIFICATION_ID)
-            nm.cancelAll()
         } catch (e: Exception) {}
 
-        Log.d("BLOCKER", "Focus session ended and flags cleared")
+        Log.d("AppBlocker", "Focus session ended and flags cleared")
     }
 }
