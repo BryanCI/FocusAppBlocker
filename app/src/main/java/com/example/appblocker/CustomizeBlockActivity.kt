@@ -23,6 +23,21 @@ class CustomizeBlockActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCustomizeBlockBinding
     private val viewModel: MainViewModel by viewModels()
 
+    // Universal Fix: standardizing preference access
+    private val prefs by lazy { FocusSessionManager.getDeviceProtectedPrefs(this, BlockerConfig.BLOCKER_PREFS) }
+
+    private val prefListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        when (key) {
+            BlockerConfig.KEY_STRICT_ENABLED -> {
+                binding.switchCommitMode.isChecked = prefs.getBoolean(BlockerConfig.KEY_STRICT_ENABLED, false)
+                updateChangePasswordVisibility()
+            }
+            BlockerConfig.KEY_STRICT_PASSWORD -> {
+                updateChangePasswordVisibility()
+            }
+        }
+    }
+
     companion object {
         const val PREFS_NAME = "block_prefs"
         const val KEY_YOUTUBE_SHORTS = "block_youtube_shorts"
@@ -35,8 +50,8 @@ class CustomizeBlockActivity : AppCompatActivity() {
         binding = ActivityCustomizeBlockBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val accPrefs = getSharedPreferences("accessibility_block_prefs", Context.MODE_PRIVATE)
+        val blockPrefs = FocusSessionManager.getDeviceProtectedPrefs(this, PREFS_NAME)
+        val accPrefs = FocusSessionManager.getDeviceProtectedPrefs(this, "accessibility_block_prefs")
 
         binding.btnBack.setOnClickListener { finish() }
 
@@ -65,23 +80,49 @@ class CustomizeBlockActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        binding.switchYoutubeShorts.isChecked = prefs.getBoolean(KEY_YOUTUBE_SHORTS, false)
-        binding.switchFacebookReels.isChecked = prefs.getBoolean(KEY_FACEBOOK_REELS, false)
-        binding.switchWhatsappChannels.isChecked = prefs.getBoolean(KEY_WHATSAPP_CHANNELS, false)
+        binding.switchYoutubeShorts.isChecked = blockPrefs.getBoolean(KEY_YOUTUBE_SHORTS, false)
+        binding.switchFacebookReels.isChecked = blockPrefs.getBoolean(KEY_FACEBOOK_REELS, false)
+        binding.switchWhatsappChannels.isChecked = blockPrefs.getBoolean(KEY_WHATSAPP_CHANNELS, false)
 
         binding.switchYoutubeShorts.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean(KEY_YOUTUBE_SHORTS, isChecked).apply()
+            blockPrefs.edit().putBoolean(KEY_YOUTUBE_SHORTS, isChecked).apply()
             accPrefs.edit().putBoolean(KEY_YOUTUBE_SHORTS, isChecked).apply()
         }
 
         binding.switchFacebookReels.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean(KEY_FACEBOOK_REELS, isChecked).apply()
+            blockPrefs.edit().putBoolean(KEY_FACEBOOK_REELS, isChecked).apply()
             accPrefs.edit().putBoolean(KEY_FACEBOOK_REELS, isChecked).apply()
         }
 
         binding.switchWhatsappChannels.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean(KEY_WHATSAPP_CHANNELS, isChecked).apply()
+            blockPrefs.edit().putBoolean(KEY_WHATSAPP_CHANNELS, isChecked).apply()
             accPrefs.edit().putBoolean(KEY_WHATSAPP_CHANNELS, isChecked).apply()
+        }
+
+        binding.layoutChangePassword.setOnClickListener { showChangePasswordDialog() }
+        
+        // Register listener on the correct prefs for Strict Mode synchronization
+        prefs.registerOnSharedPreferenceChangeListener(prefListener)
+        updateChangePasswordVisibility()
+
+        binding.switchCommitMode.setOnClickListener {
+            val isCurrentlyEnabled = prefs.getBoolean(BlockerConfig.KEY_STRICT_ENABLED, false)
+            val pin = prefs.getString(BlockerConfig.KEY_STRICT_PASSWORD, null)
+            
+            // Revert switch state immediately, let the logic handle it
+            binding.switchCommitMode.isChecked = isCurrentlyEnabled
+
+            if (!isCurrentlyEnabled) {
+                if (pin.isNullOrEmpty()) {
+                    showStrictPinSheet(StrictModePinBottomSheet.Mode.SET)
+                } else {
+                    prefs.edit().putBoolean(BlockerConfig.KEY_STRICT_ENABLED, true).apply()
+                    viewModel.toggleStrictMode(true)
+                    Toast.makeText(this, "Strict Mode enabled 🔒", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                showStrictPinSheet(StrictModePinBottomSheet.Mode.VERIFY)
+            }
         }
 
         lifecycleScope.launch {
@@ -168,6 +209,14 @@ class CustomizeBlockActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updatePermissionsCard()
+        updateChangePasswordVisibility()
+        
+        binding.switchCommitMode.isChecked = prefs.getBoolean(BlockerConfig.KEY_STRICT_ENABLED, false)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        prefs.unregisterOnSharedPreferenceChangeListener(prefListener)
     }
 
     private fun updatePermissionsCard() {
@@ -203,5 +252,78 @@ class CustomizeBlockActivity : AppCompatActivity() {
             binding.iconPermissionsHub.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.bg_warning_icon_opal))
             binding.ivPermissionsHubIcon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.premium_yellow))
         }
+    }
+
+    private fun showStrictPinSheet(mode: StrictModePinBottomSheet.Mode) {
+        val correctPin = prefs.getString(BlockerConfig.KEY_STRICT_PASSWORD, null)
+        val sheet = StrictModePinBottomSheet.newInstance(mode, correctPin)
+        sheet.setListener(object : StrictModePinBottomSheet.StrictModePinListener {
+            override fun onPinSet(pin: String) {
+                // Rely on ViewModel for dual-write to DB and Prefs
+                viewModel.updatePin(pin)
+                viewModel.toggleStrictMode(true)
+                updateChangePasswordVisibility()
+                Toast.makeText(this@CustomizeBlockActivity, "PIN set & Strict Mode enabled 🔒", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onPinVerified() {
+                viewModel.toggleStrictMode(false)
+                updateChangePasswordVisibility()
+                Toast.makeText(this@CustomizeBlockActivity, "Strict Mode disabled", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onCancel() {}
+        })
+        sheet.show(supportFragmentManager, "StrictPinSheet")
+    }
+
+    private fun updateChangePasswordVisibility() {
+        try {
+            val hasPass = !prefs.getString(BlockerConfig.KEY_STRICT_PASSWORD, "").isNullOrEmpty()
+            binding.dividerStrict.visibility = if (hasPass) android.view.View.VISIBLE else android.view.View.GONE
+            binding.layoutChangePassword.visibility = if (hasPass) android.view.View.VISIBLE else android.view.View.GONE
+        } catch (e: Exception) {}
+    }
+
+    private fun showChangePasswordDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_change_strict_pin, null)
+        val dialogBinding = com.example.appblocker.databinding.DialogChangeStrictPinBinding.bind(dialogView)
+        
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+            
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        dialogBinding.btnCancel.setOnClickListener { dialog.dismiss() }
+        
+        dialogBinding.btnChange.setOnClickListener {
+            val currentPinInput = dialogBinding.etCurrentPin.text.toString()
+            val newPin = dialogBinding.etNewPin.text.toString()
+            val confirmPin = dialogBinding.etConfirmPin.text.toString()
+            
+            val savedPin = prefs.getString(BlockerConfig.KEY_STRICT_PASSWORD, "")
+            
+            if (currentPinInput != savedPin) {
+                Toast.makeText(this, "Incorrect current PIN", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            
+            if (newPin.length < 4) {
+                Toast.makeText(this, "PIN must be at least 4 digits", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            
+            if (newPin != confirmPin) {
+                Toast.makeText(this, "New PINs do not match", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            
+            viewModel.updatePin(newPin)
+            Toast.makeText(this, "PIN changed successfully", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+        
+        dialog.show()
     }
 }

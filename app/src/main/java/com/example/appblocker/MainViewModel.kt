@@ -750,6 +750,10 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val currentSettings = settings.value ?: AppSettings()
             settingsDao.updateSettings(currentSettings.copy(password = pin))
+            
+            // Sync with SharedPreferences for BlockerService
+            val prefs = FocusSessionManager.getDeviceProtectedPrefs(getApplication(), BlockerConfig.BLOCKER_PREFS)
+            prefs.edit().putString(BlockerConfig.KEY_STRICT_PASSWORD, pin).apply()
         }
     }
 
@@ -838,6 +842,13 @@ class MainViewModel @Inject constructor(
                 isStrictModeEnabled = enabled,
                 password = passwordToUse
             ))
+
+            // Sync with SharedPreferences for BlockerService
+            val prefs = FocusSessionManager.getDeviceProtectedPrefs(getApplication(), BlockerConfig.BLOCKER_PREFS)
+            prefs.edit()
+                .putBoolean(BlockerConfig.KEY_STRICT_ENABLED, enabled)
+                .putString(BlockerConfig.KEY_STRICT_PASSWORD, passwordToUse)
+                .apply()
         }
     }
 
@@ -917,7 +928,7 @@ class MainViewModel @Inject constructor(
             // Dual save for accessibility service fast sync
             val allBlocked = dao.getBlockedAppsList()
             val packages = allBlocked.filter { !it.isKeyword && it.pattern != getApplication<Application>().packageName }.map { it.pattern }.toSet()
-            val prefs = getApplication<Application>().getSharedPreferences("block_prefs", Context.MODE_PRIVATE)
+            val prefs = FocusSessionManager.getDeviceProtectedPrefs(getApplication(), "block_prefs")
             prefs.edit().putStringSet("blocked_apps", packages).apply()
             Log.d("BLOCKER", "Saved blocked_apps to prefs: $packages")
         }

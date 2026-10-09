@@ -111,14 +111,20 @@ class AppsFragment : Fragment() {
         }
 
         if (isStrict && isBlockingPicker && isRemoval) {
-            val prefs = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            val prefs = com.example.appblocker.FocusSessionManager.getDeviceProtectedPrefs(requireContext(), "app_prefs")
             val currentPin = prefs.getString("strict_pin", null)
             val sheet = StrictModePinBottomSheet.newInstance(StrictModePinBottomSheet.Mode.VERIFY, currentPin)
             sheet.setListener(object : StrictModePinBottomSheet.StrictModePinListener {
                 override fun onPinSet(pin: String) {}
                 override fun onPinVerified() {
+                    (item as? ModelAppInfo)?.let { it.isChecked = !it.isChecked }
+                    (item as? AppGroup)?.let { group ->
+                        val newState = !group.apps.all { it.isChecked }
+                        group.apps.forEach { it.isChecked = newState }
+                    }
                     (activity as? AppPickerActivity)?.syncSelectedPackages()
                     (activity as? AppPickerActivity)?.updateSaveButton()
+                    adapter.notifyDataSetChanged()
                     updateSelectedCount()
                 }
                 override fun onCancel() {
@@ -143,7 +149,9 @@ class AppsFragment : Fragment() {
                 emptyList()
             }
             
-            val blockedApps = viewModel.blockedApps.first().filter { !it.isKeyword }.map { it.pattern }.toSet()
+            val blockPrefs = com.example.appblocker.FocusSessionManager.getDeviceProtectedPrefs(requireContext(), "block_prefs")
+            val blockedAppsSet = blockPrefs.getStringSet("blocked_apps", emptySet()) ?: emptySet()
+            
             val allowedApps = viewModel.allowedApps.first().map { it.packageName }.toSet()
 
             val appInfos = resolveInfos.mapNotNull {
@@ -154,7 +162,7 @@ class AppsFragment : Fragment() {
                     packageName = activityInfo.packageName,
                     appName = it.loadLabel(pm).toString(),
                     isChecked = if (pickerType == AppPickerActivity.TYPE_BLOCKED) {
-                        blockedApps.contains(activityInfo.packageName)
+                        blockedAppsSet.contains(activityInfo.packageName)
                     } else {
                         allowedApps.contains(activityInfo.packageName)
                     },

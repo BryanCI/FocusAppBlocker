@@ -29,7 +29,46 @@ object FocusSessionManager {
     var isInfiniteCache: Boolean = false
 
     private fun getPrefs(context: Context): SharedPreferences {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val storageContext = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            context.createDeviceProtectedStorageContext()
+        } else {
+            context
+        }
+        return storageContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
+
+    fun getDeviceProtectedPrefs(context: Context, name: String): SharedPreferences {
+        val storageContext = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            context.createDeviceProtectedStorageContext()
+        } else {
+            context
+        }
+        return storageContext.getSharedPreferences(name, Context.MODE_PRIVATE)
+    }
+
+    fun migrateToDeviceProtected(context: Context) {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) return
+        
+        val deviceContext = context.createDeviceProtectedStorageContext()
+        val userManager = context.getSystemService(Context.USER_SERVICE) as? android.os.UserManager
+        
+        if (userManager?.isUserUnlocked == true) {
+            val prefsToMigrate = listOf(PREFS_NAME, "block_prefs", "accessibility_block_prefs", "schedules_prefs", BlockerConfig.BLOCKER_PREFS)
+            for (prefsName in prefsToMigrate) {
+                val destPrefs = deviceContext.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+                if (!destPrefs.getBoolean("dp_migrated", false)) {
+                    try {
+                        // Attempt to move. returns true if source existed and was moved.
+                        deviceContext.moveSharedPreferencesFrom(context, prefsName)
+                        // Always mark as migrated so we don't try again
+                        deviceContext.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+                            .edit().putBoolean("dp_migrated", true).apply()
+                    } catch (e: Exception) {
+                        Log.e("FocusSessionManager", "Failed to migrate $prefsName", e)
+                    }
+                }
+            }
+        }
     }
 
     fun startSession(context: Context, durationMinutes: Int) {
@@ -67,9 +106,6 @@ object FocusSessionManager {
     }
 
     fun isSessionActive(context: Context): Boolean {
-        // Fast path: trust cache if it's set to true
-        if (isActiveCache) return true
-        
         val prefs = getPrefs(context)
         val active = prefs.getBoolean(KEY_FOCUS_ACTIVE, false)
         if (!active) {
@@ -125,7 +161,7 @@ object FocusSessionManager {
         isInfiniteCache = false
         
         // 2. Clear blocked list in SharedPreferences for immediate unblock
-        context.getSharedPreferences("block_prefs", Context.MODE_PRIVATE)
+        getDeviceProtectedPrefs(context, "block_prefs")
             .edit().putStringSet("blocked_apps", emptySet()).apply()
             
         // 3. Reset session flags in app_prefs

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+ xmlns:android="http://schemas.android.com/apk/res/android"
+ xmlns:app="http://schemas.android.com/apk/res-auto"
+ android:layout_width="match_parent"
+ android:layout_height="wrap_content"
+ app:cardCornerRadius="28dp"
+ app:cardBackgroundColor="#1E1E1E"
+ app:strokeWidth="1dp"
+ app:strokeColor="#2A2A2A">
+
+ <LinearLayout
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:orientation="vertical"
+  android:padding="28dp">
+
+  <TextView
+   android:layout_width="wrap_content"
+   android:layout_height="wrap_content"
+   android:text="Change Strict Mode PIN"
+   android:textSize="20sp"
+   android:textStyle="bold"
+   android:textColor="#FFFFFF"
+   android:layout_marginBottom="24dp"/>
+
+  <com.google.android.material.textfield.TextInputLayout
+   android:layout_width="match_parent"
+   android:layout_height="wrap_content"
+   android:hint="Current PIN"
+   app:boxBackgroundMode="outline"
+   app:boxCornerRadiusTopStart="14dp"
+   app:boxCornerRadiusTopEnd="14dp"
+   app:boxCornerRadiusBottomEnd="14dp"
+   app:boxCornerRadiusBottomStart="14dp"
+   app:boxStrokeColor="#3A3A3A"
+   app:hintTextColor="#888888"
+   style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+   android:layout_marginBottom="14dp">
+
+   <com.google.android.material.textfield.TextInputEditText
+    android:id="@+id/etCurrentPin"
+    android:inputType="numberPassword"
+    android:textColor="#FFFFFF"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>
+  </com.google.android.material.textfield.TextInputLayout>
+
+  <com.google.android.material.textfield.TextInputLayout
+   android:layout_width="match_parent"
+   android:layout_height="wrap_content"
+   android:hint="New PIN"
+   app:boxBackgroundMode="outline"
+   app:boxCornerRadiusTopStart="14dp"
+   app:boxCornerRadiusTopEnd="14dp"
+   app:boxCornerRadiusBottomEnd="14dp"
+   app:boxCornerRadiusBottomStart="14dp"
+   app:boxStrokeColor="#3A3A3A"
+   app:hintTextColor="#888888"
+   style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+   android:layout_marginBottom="14dp">
+
+   <com.google.android.material.textfield.TextInputEditText
+    android:id="@+id/etNewPin"
+    android:inputType="numberPassword"
+    android:textColor="#FFFFFF"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>
+  </com.google.android.material.textfield.TextInputLayout>
+
+  <com.google.android.material.textfield.TextInputLayout
+   android:layout_width="match_parent"
+   android:layout_height="wrap_content"
+   android:hint="Confirm new PIN"
+   app:boxBackgroundMode="outline"
+   app:boxCornerRadiusTopStart="14dp"
+   app:boxCornerRadiusTopEnd="14dp"
+   app:boxCornerRadiusBottomEnd="14dp"
+   app:boxCornerRadiusBottomStart="14dp"
+   app:boxStrokeColor="#3A3A3A"
+   app:hintTextColor="#888888"
+   style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+   android:layout_marginBottom="28dp">
+
+   <com.google.android.material.textfield.TextInputEditText
+    android:id="@+id/etConfirmPin"
+    android:inputType="numberPassword"
+    android:textColor="#FFFFFF"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>
+  </com.google.android.material.textfield.TextInputLayout>
+
+  <LinearLayout
+   android:layout_width="match_parent"
+   android:layout_height="wrap_content"
+   android:orientation="horizontal"
+   android:gravity="end">
+
+   <com.google.android.material.button.MaterialButton
+    android:id="@+id/btnCancel"
+    style="@style/Widget.Material3.Button.TextButton"
+    android:text="Cancel"
+    app:cornerRadius="20dp"
+    android:textColor="#888888"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"/>
+
+   <com.google.android.material.button.MaterialButton
+    android:id="@+id/btnChange"
+    android:text="Change"
+    app:cornerRadius="20dp"
+    android:backgroundTint="#A78BFA"
+    android:textColor="#FFFFFF"
+    android:layout_marginStart="8dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"/>
+  </LinearLayout>
+
+ </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -51,7 +51,7 @@ class SplashFragment : Fragment() {
         imageView.setOnLongClickListener {
             tapCount++
             if (tapCount >= 5) {
-                val appPrefs = requireContext().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+                val appPrefs = com.example.appblocker.FocusSessionManager.getDeviceProtectedPrefs(requireContext(), "app_prefs")
                 appPrefs.edit().clear().apply()
                 android.widget.Toast.makeText(requireContext(), "Developer Reset: Preferences Cleared", android.widget.Toast.LENGTH_SHORT).show()
                 tapCount = 0
@@ -62,7 +62,7 @@ class SplashFragment : Fragment() {
         lifecycleScope.launch {
             delay(500) // Reduced to half a second
             if (findNavController().currentDestination?.id == R.id.splashFragment) {
-                val appPrefs = requireContext().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+                val appPrefs = com.example.appblocker.FocusSessionManager.getDeviceProtectedPrefs(requireContext(), "app_prefs")
                 val onboardingDone = appPrefs.getBoolean("onboarding_done", false)
                 val isFirstLaunch = appPrefs.getBoolean("is_first_launch", true)
                 

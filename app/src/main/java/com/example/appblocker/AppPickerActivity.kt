@@ -158,7 +158,7 @@ class AppPickerActivity : AppCompatActivity() {
                     // Sync to SharedPreferences for service quick access
                     val newList = dao.getBlockedAppsList()
                     val packages = newList.filter { !it.isKeyword }.map { it.pattern }.toSet()
-                    getSharedPreferences("block_prefs", Context.MODE_PRIVATE)
+                    FocusSessionManager.getDeviceProtectedPrefs(applicationContext, "block_prefs")
                         .edit().putStringSet("blocked_apps", packages).apply()
                 }
             } else {

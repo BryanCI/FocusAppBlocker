@@ -33,6 +33,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.appblocker.AppBlockerService
+import com.example.appblocker.FocusSessionManager
 import com.example.appblocker.R
 import com.example.appblocker.data.AppDatabase
 import com.example.appblocker.data.InternetSchedule
@@ -179,7 +180,7 @@ class SchedulerFragment : Fragment() {
             }
         } catch (e: Exception) { e.printStackTrace() }
 
-        val prefs = requireContext().getSharedPreferences("schedules_prefs", Context.MODE_PRIVATE)
+        val prefs = FocusSessionManager.getDeviceProtectedPrefs(requireContext(), "schedules_prefs")
         val activeIdStr = prefs.getString("active_schedule_id", null)
 
         var hasActive = false
@@ -308,7 +309,7 @@ class SchedulerFragment : Fragment() {
                 }.start()
 
                 try {
-                    val prefs2 = requireContext().getSharedPreferences("schedules_prefs", Context.MODE_PRIVATE)
+                    val prefs2 = FocusSessionManager.getDeviceProtectedPrefs(requireContext(), "schedules_prefs")
                     val activeId2 = prefs2.getString("active_schedule_id", null)
                     
                     if (activeId2 == schedule.id.toString()) {
@@ -597,7 +598,7 @@ class SchedulerFragment : Fragment() {
             override fun onFinish() {
                 val nm = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 nm.cancel(1001)
-                val prefs = requireContext().getSharedPreferences("schedules_prefs", Context.MODE_PRIVATE)
+                val prefs = FocusSessionManager.getDeviceProtectedPrefs(requireContext(), "schedules_prefs")
                 prefs.edit().remove("active_schedule_id").apply()
                 liveBadge.visibility = View.GONE
                 activeInfoContainer.visibility = View.GONE
@@ -628,7 +629,7 @@ class SchedulerFragment : Fragment() {
     }
 
     private fun activateSchedule(schedule: InternetSchedule) {
-        val prefs = requireContext().getSharedPreferences("schedules_prefs", Context.MODE_PRIVATE)
+        val prefs = FocusSessionManager.getDeviceProtectedPrefs(requireContext(), "schedules_prefs")
         prefs.edit().putString("active_schedule_id", schedule.id.toString()).apply()
         
         refreshUI()

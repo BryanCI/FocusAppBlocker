@@ -41,13 +41,13 @@ class SetupPermissionFragment : Fragment(R.layout.fragment_setup_permission) {
 
     private fun startAutoReturnMonitoring(check: () -> Boolean) {
         permissionPollJob?.cancel()
-        permissionPollJob = lifecycleScope.launch {
+        permissionPollJob = viewLifecycleOwner.lifecycleScope.launch {
             repeat(120) { // 60 sec max
                 delay(500)
-                if (!isAdded) return@launch
+                if (!isAdded || _binding == null) return@launch
                 if (check()) {
                     withContext(Dispatchers.Main) {
-                        if (!isAdded) return@withContext
+                        if (!isAdded || _binding == null) return@withContext
                         refreshAllPermissions()
                         try {
                             val intent = Intent(requireContext(), MainActivity::class.java).apply {
@@ -146,7 +146,7 @@ class SetupPermissionFragment : Fragment(R.layout.fragment_setup_permission) {
         }
 
         binding.finishedButton.setOnClickListener {
-            requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().putBoolean("onboarding_done", true).apply()
+            com.example.appblocker.FocusSessionManager.getDeviceProtectedPrefs(requireContext(), "app_prefs").edit().putBoolean("onboarding_done", true).apply()
             try {
                 val intent = Intent(requireContext(), MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

@@ -265,32 +265,32 @@
                     <TextView
                         android:id="@+id/btn1m"
                         style="@style/QuickBlockChip"
-                        android:text="1m" />
+                        android:text="15m" />
 
                     <TextView
                         android:id="@+id/btn15m"
                         style="@style/QuickBlockChip"
-                        android:text="15m" />
+                        android:text="30m" />
 
                     <TextView
                         android:id="@+id/btn30m"
                         style="@style/QuickBlockChip"
-                        android:text="30m" />
+                        android:text="1h" />
 
                     <TextView
                         android:id="@+id/btn1h"
                         style="@style/QuickBlockChip"
-                        android:text="1h" />
+                        android:text="2h" />
 
                     <TextView
                         android:id="@+id/btn2h"
                         style="@style/QuickBlockChip"
-                        android:text="2h" />
+                        android:text="4h" />
 
                     <TextView
                         android:id="@+id/btn4h"
                         style="@style/QuickBlockChip"
-                        android:text="4h" />
+                        android:text="6h" />
 
                     <TextView
                         android:id="@+id/btnCustom"

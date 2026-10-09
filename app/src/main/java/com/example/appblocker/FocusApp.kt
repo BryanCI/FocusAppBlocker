@@ -16,6 +16,9 @@ class FocusApp : Application() {
     override fun onCreate() {
         super.onCreate()
         
+        // Ensure shared preferences and database are in device protected storage for Direct Boot support
+        FocusSessionManager.migrateToDeviceProtected(this)
+        
         NotificationHelper.createNotificationChannels(this)
         
         // Apply theme as early as possible but avoid runBlocking on Main

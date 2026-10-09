@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         NotificationHelper.createNotificationChannels(this)
 
-        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val prefs = FocusSessionManager.getDeviceProtectedPrefs(this, "app_prefs")
         val done = prefs.getBoolean("onboarding_done", false)
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment

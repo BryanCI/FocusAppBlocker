@@ -53,7 +53,7 @@ class OnboardingActivity : AppCompatActivity() {
     }
 
     fun finishOnboarding() {
-        val sharedPref = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val sharedPref = com.example.appblocker.FocusSessionManager.getDeviceProtectedPrefs(this, "app_prefs")
         with(sharedPref.edit()) {
             putBoolean("onboarding_done", true)
             apply()

@@ -290,6 +290,13 @@ class AppBlockerService : Service() {
                 try {
                     val now = System.currentTimeMillis()
                     
+                    // Safety check: Auto-stop if session expired
+                    if (!FocusSessionManager.isSessionActive(this@AppBlockerService)) {
+                        android.util.Log.d("AppBlocker", "Session inactive - stopping service")
+                        stopSelf()
+                        break
+                    }
+
                     if (!isScreenOn) {
                         delay(1000)
                         continue
@@ -536,6 +543,7 @@ class AppBlockerService : Service() {
     }
 
     private var overlayView: android.view.View? = null
+    private var blockTimer: android.os.CountDownTimer? = null
     @Volatile private var suppressBlockingUntil = 0L
     @Volatile private var isHandlingGoHome = false
     private var lastBlockedPkg: String? = null
@@ -615,6 +623,26 @@ class AppBlockerService : Service() {
                 
                 view.findViewById<android.widget.TextView>(R.id.tvBlockedAppName)?.text = "Stay focused! This app is blocked."
                 
+                val endTime = cachedQuickBlockEndTime.takeIf { it > 0 && it != Long.MAX_VALUE } ?: 0L
+                val remaining = endTime - System.currentTimeMillis()
+                
+                val timerView = view.findViewById<android.widget.TextView>(R.id.tvUnblockTimer)
+                if (remaining > 0 && timerView != null) {
+                    timerView.visibility = android.view.View.VISIBLE
+                    blockTimer?.cancel()
+                    blockTimer = object : android.os.CountDownTimer(remaining, 1000) {
+                        override fun onTick(m: Long) {
+                            val mm = m / 60000
+                            val ss = (m % 60000)/1000
+                            timerView.text = String.format("Unblocks in %02d:%02d", mm, ss)
+                        }
+                        override fun onFinish() { timerView.text = "Unblocked - you can go back" }
+                    }.start()
+                }
+
+                val btnHome = view.findViewById<android.widget.Button>(R.id.btnGoHome)
+                btnHome?.text = "Return to Home"
+
                 view.findViewById<android.view.View>(R.id.btnGoHome)?.setOnClickListener {
                     android.util.Log.d("AppBlocker", "Go Home clicked")
                     // CRITICAL: Set suppression BEFORE removing view
@@ -624,6 +652,8 @@ class AppBlockerService : Service() {
 
                     try { wm.removeView(view) } catch(_: Exception) {}
                     overlayView = null
+                    blockTimer?.cancel()
+                    blockTimer = null
 
                     try {
                         // Go to PHONE home screen - Play Store standard, no cheating
@@ -687,6 +717,8 @@ class AppBlockerService : Service() {
         isHandlingGoHome = false
         suppressBlockingUntil = 0L
         try {
+            blockTimer?.cancel()
+            blockTimer = null
             overlayView?.let { (getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager).removeView(it) }
         } catch (e: Exception) {
             Log.e("AppBlocker", "Error removing overlay in onDestroy", e)

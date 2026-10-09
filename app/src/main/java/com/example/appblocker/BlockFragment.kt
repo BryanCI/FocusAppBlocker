@@ -1,5 +1,6 @@
 package com.example.appblocker
 
+import android.os.CountDownTimer
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ArgbEvaluator
@@ -43,11 +44,10 @@ import kotlinx.coroutines.withContext
 class BlockFragment : Fragment() {
 
     private var _binding: FragmentBlockBinding? = null
-    private val binding get() = _binding
-
+    private val binding get() = _binding!!
 
     private val viewModel: MainViewModel by activityViewModels()
-    private var countdownJob: Job? = null
+    private var countDownTimer: CountDownTimer? = null
     private var currentIsAllGranted: Boolean? = null
     private var isPermissionsExpanded = false
     private var isStarting = false
@@ -66,8 +66,6 @@ class BlockFragment : Fragment() {
         _binding = FragmentBlockBinding.inflate(inflater, container, false)
         return _binding!!.root
     }
-
-    private var timerJob: Job? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -93,23 +91,28 @@ class BlockFragment : Fragment() {
         }
 
         view.post {
-            viewLifecycleOwner.lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                viewModel.settings.collect { appSettings ->
-                    withContext(kotlinx.coroutines.Dispatchers.Main) {
-                        val innerB = _binding ?: return@withContext
-                        if (appSettings != null) {
-                            innerB.switchStrictMode.isChecked = appSettings.isStrictModeEnabled
+            if (isAdded && _binding != null && view != null) {
+                view?.let {
+                    viewLifecycleOwner.lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                        viewModel.settings.collect { appSettings ->
+                            withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                val innerB = _binding ?: return@withContext
+                                if (appSettings != null) {
+                                    innerB.switchStrictMode.isChecked = appSettings.isStrictModeEnabled
+                                    updateStrictModeUI()
+                                }
+                                updatePermissionHealth(isInitial = currentIsAllGranted == null)
+                            }
                         }
-                        updatePermissionHealth(isInitial = currentIsAllGranted == null)
                     }
                 }
             }
         }
 
         b.switchStrictMode.setOnClickListener {
-            val prefs = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-            val isCurrentlyOn = prefs.getBoolean("strict_mode", false)
-            val pin = prefs.getString("strict_pin", null)
+            val prefs = FocusSessionManager.getDeviceProtectedPrefs(requireContext(), BlockerConfig.BLOCKER_PREFS)
+            val isCurrentlyOn = prefs.getBoolean(BlockerConfig.KEY_STRICT_ENABLED, false)
+            val pin = prefs.getString(BlockerConfig.KEY_STRICT_PASSWORD, null)
             val innerB = _binding ?: return@setOnClickListener
             innerB.switchStrictMode.isChecked = isCurrentlyOn
 
@@ -117,12 +120,9 @@ class BlockFragment : Fragment() {
                 if (pin.isNullOrEmpty()) {
                     showStrictPinSheet(StrictModePinBottomSheet.Mode.SET)
                 } else {
-                    prefs.edit().putBoolean("strict_mode", true).apply()
                     viewModel.toggleStrictMode(true)
-                    innerB.switchStrictMode.isChecked = true
                     Toast.makeText(requireContext(), "Strict Mode enabled 🔒", Toast.LENGTH_SHORT).show()
                     triggerSuccessFeedback()
-                    updateStrictModeUI()
                 }
             } else {
                 showStrictPinSheet(StrictModePinBottomSheet.Mode.VERIFY)
@@ -142,30 +142,11 @@ class BlockFragment : Fragment() {
                 updateStrictModeUI()
                 if (FocusSessionManager.isSessionActive(requireContext())) {
                     showActiveState()
+                    startSafeTimer()
                 } else {
                     val innerB = _binding ?: return@collect
                     innerB.layoutActive.visibility = View.GONE
                     innerB.layoutIdle.visibility = View.VISIBLE
-                }
-            }
-        }
-
-        // Bug 1 Fix: Use Flow-based timer
-        timerJob?.cancel()
-        timerJob = viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                viewModel.remainingMillisFlow.collect { remaining ->
-                    val innerB = _binding ?: return@collect
-                    if (remaining <= 0) {
-                        if (innerB.layoutActive.visibility == View.VISIBLE) {
-                            showActiveState() // refreshes to idle
-                        }
-                    } else {
-                        if (innerB.layoutActive.visibility != View.VISIBLE) {
-                            showActiveState()
-                        }
-                        updateTimerUI(remaining)
-                    }
                 }
             }
         }
@@ -248,8 +229,8 @@ class BlockFragment : Fragment() {
 
     private fun updateStrictModeUI() {
         val b = _binding ?: return
-        val prefs = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        val isStrict = prefs.getBoolean("strict_mode", false)
+        val prefs = FocusSessionManager.getDeviceProtectedPrefs(requireContext(), BlockerConfig.BLOCKER_PREFS)
+        val isStrict = prefs.getBoolean(BlockerConfig.KEY_STRICT_ENABLED, false)
         b.switchStrictMode.isChecked = isStrict
 
         if (isStrict) {
@@ -262,14 +243,12 @@ class BlockFragment : Fragment() {
     }
 
     private fun showStrictPinSheet(mode: StrictModePinBottomSheet.Mode) {
-        val prefs = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        val correctPin = prefs.getString("strict_pin", null)
+        val prefs = FocusSessionManager.getDeviceProtectedPrefs(requireContext(), BlockerConfig.BLOCKER_PREFS)
+        val correctPin = prefs.getString(BlockerConfig.KEY_STRICT_PASSWORD, null)
         val sheet = StrictModePinBottomSheet.newInstance(mode, correctPin)
         sheet.setListener(object : StrictModePinBottomSheet.StrictModePinListener {
             override fun onPinSet(pin: String) {
-                prefs.edit().putString("strict_pin", pin).putBoolean("strict_mode", true).apply()
                 viewModel.toggleStrictMode(true)
-                updateStrictModeUI()
                 triggerSuccessFeedback()
                 Toast.makeText(requireContext(), "PIN set & Strict Mode enabled 🔒", Toast.LENGTH_SHORT).show()
             }
@@ -280,9 +259,7 @@ class BlockFragment : Fragment() {
                     showActiveState() // This will refresh to idle
                     Toast.makeText(requireContext(), "Session ended early", Toast.LENGTH_SHORT).show()
                 } else {
-                    prefs.edit().putBoolean("strict_mode", false).apply()
                     viewModel.toggleStrictMode(false)
-                    updateStrictModeUI()
                     Toast.makeText(requireContext(), "Strict Mode disabled", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -293,8 +270,8 @@ class BlockFragment : Fragment() {
     }
 
     private fun handleEndEarlyClick() {
-        val prefs = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        val isStrict = prefs.getBoolean("strict_mode", false)
+        val prefs = FocusSessionManager.getDeviceProtectedPrefs(requireContext(), BlockerConfig.BLOCKER_PREFS)
+        val isStrict = prefs.getBoolean(BlockerConfig.KEY_STRICT_ENABLED, false)
         if (isStrict) {
             showStrictPinSheet(StrictModePinBottomSheet.Mode.VERIFY)
         } else {
@@ -310,8 +287,8 @@ class BlockFragment : Fragment() {
         b.btnEndEarly.setOnTouchListener { _, event ->
             when (event.action) {
                 android.view.MotionEvent.ACTION_DOWN -> {
-                    val prefs = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-                    val isStrict = prefs.getBoolean("strict_mode", false)
+                    val prefs = FocusSessionManager.getDeviceProtectedPrefs(requireContext(), BlockerConfig.BLOCKER_PREFS)
+                    val isStrict = prefs.getBoolean(BlockerConfig.KEY_STRICT_ENABLED, false)
                     if (isStrict) {
                         b.btnEndEarly.text = "Strict mode: Cannot end early"
                         return@setOnTouchListener true
@@ -460,65 +437,39 @@ class BlockFragment : Fragment() {
         b.tvActiveSummary.text = detailText
     }
 
-    private fun startCountdownUpdates() {
-        countdownJob?.cancel()
-        countdownJob = viewLifecycleOwner.lifecycleScope.launch {
-            val totalMillis = FocusSessionManager.getTotalSessionMillis(requireContext())
-            while (isActive) {
-                val b = _binding ?: break
-                val remaining = FocusSessionManager.getRemainingMillis(requireContext())
-                if (remaining <= 0) {
-                    showActiveState()
-                    break
-                }
+    private fun startSafeTimer() {
+        countDownTimer?.cancel()
+        val ctx = context ?: return
+        val timeLeft = FocusSessionManager.getRemainingMillis(ctx)
+        if (timeLeft <= 0) return
 
-                // Update Progress Ring
-                if (totalMillis > 0) {
-                    val progress = ((totalMillis - remaining).toFloat() / totalMillis.toFloat() * 100).toInt()
-                    b.progressRing.setProgress(progress, true)
+        countDownTimer = object : CountDownTimer(timeLeft, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                if (_binding == null || !isAdded || view == null) {
+                    cancel()
+                    return
                 }
-
-                if (remaining > 1000L * 60 * 60 * 24 * 365) {
-                    b.tvCountdown.text = "∞"
-                    b.progressRing.isIndeterminate = true
-                } else {
-                    b.progressRing.isIndeterminate = false
-                    val seconds = (remaining / 1000) % 60
-                    val minutes = (remaining / (1000 * 60)) % 60
-                    val hours = (remaining / (1000 * 60 * 60))
-                    
-                    val timeStr = if (hours > 0) {
-                        String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
-                    } else {
-                        String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
-                    }
-                    
-                    if (b.tvCountdown.text != timeStr) {
-                        b.tvCountdown.text = timeStr
-                        // Scale animation on each second
-                        b.tvCountdown.animate()
-                            .scaleX(1.1f)
-                            .scaleY(1.1f)
-                            .setDuration(150)
-                            .withEndAction {
-                                _binding?.tvCountdown?.animate()
-                                    ?.scaleX(1.0f)
-                                    ?.scaleY(1.0f)
-                                    ?.setDuration(150)
-                                    ?.start()
-                            }
-                            .start()
-                    }
-
-                    // Haptic tick every minute
-                    if (remaining % 60000 < 1000 && remaining > 1000) {
-                        b.root.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
-                    }
-                }
-                delay(1000)
+                updateTimerUI(millisUntilFinished)
             }
-        }
+
+            override fun onFinish() {
+                val appCtx = context?.applicationContext
+                if (_binding == null || !isAdded) {
+                    appCtx?.let { FocusSessionManager.endSession(it) }
+                    return
+                }
+                
+                try {
+                    FocusSessionManager.endSession(requireContext())
+                    showActiveState()
+                } catch (e: Exception) {
+                    appCtx?.let { FocusSessionManager.endSession(appCtx) }
+                    _binding?.let { showActiveState() }
+                }
+            }
+        }.start()
     }
+
     private fun refreshBlockBanner() {}
 
     private fun updateSystemStatusBanner() {
@@ -650,12 +601,12 @@ class BlockFragment : Fragment() {
 
     private fun setupQuickBlockListeners() {
         val b = _binding ?: return
-        b.btn1m.setOnClickListener { view -> handleQuickBlock(1, view) }
-        b.btn15m.setOnClickListener { view -> handleQuickBlock(15, view) }
-        b.btn30m.setOnClickListener { view -> handleQuickBlock(30, view) }
-        b.btn1h.setOnClickListener { view -> handleQuickBlock(60, view) }
-        b.btn2h.setOnClickListener { view -> handleQuickBlock(120, view) }
-        b.btn4h.setOnClickListener { view -> handleQuickBlock(240, view) }
+        b.btn1m.setOnClickListener { view -> handleQuickBlock(15, view) }
+        b.btn15m.setOnClickListener { view -> handleQuickBlock(30, view) }
+        b.btn30m.setOnClickListener { view -> handleQuickBlock(60, view) }
+        b.btn1h.setOnClickListener { view -> handleQuickBlock(120, view) }
+        b.btn2h.setOnClickListener { view -> handleQuickBlock(240, view) }
+        b.btn4h.setOnClickListener { view -> handleQuickBlock(360, view) }
         b.btnInf.setOnClickListener { view -> handleQuickBlock(-1, view) }
         b.btnCustom.setOnClickListener { showCustomDurationDialog() }
     }
@@ -720,12 +671,25 @@ class BlockFragment : Fragment() {
 
         isStarting = true
         triggerHapticFeedback()
+        
+        // Start BlockSessionService which handles the persistent notification and countdown
+        val serviceIntent = Intent(requireContext(), BlockSessionService::class.java).apply {
+            action = BlockSessionService.ACTION_START
+            putExtra(BlockSessionService.EXTRA_DURATION_MINUTES, durationMinutes)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            requireContext().startForegroundService(serviceIntent)
+        } else {
+            requireContext().startService(serviceIntent)
+        }
+
         viewLifecycleOwner.lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-            FocusSessionManager.startSession(requireContext(), durationMinutes)
-            requireContext().sendBroadcast(Intent("com.example.appblocker.START_BLOCKING"))
+            // FocusSessionManager.startSession(requireContext(), durationMinutes) // BlockSessionService calls this
+            requireContext().sendBroadcast(Intent("com.example.appblocker.START_BLOCKING").setPackage(requireContext().packageName))
             withContext(kotlinx.coroutines.Dispatchers.Main) { 
                 isStarting = false 
                 showActiveState()
+                startSafeTimer()
             }
         }
     }
@@ -741,8 +705,9 @@ class BlockFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        timerJob?.cancel()
-        timerJob = null
+        super.onDestroyView()
+        countDownTimer?.cancel()
+        countDownTimer = null
         
         dotPulseAnimator?.cancel()
         dotPulseAnimator = null
@@ -760,6 +725,5 @@ class BlockFragment : Fragment() {
         
         stopBreathingAnimation()
         _binding = null
-        super.onDestroyView()
     }
 }
