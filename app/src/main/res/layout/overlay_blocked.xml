@@ -2,14 +2,21 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A0A0F">
+    android:background="#800A0A0F"
+    android:clickable="false"
+    android:focusable="false">
 
+    <!-- Only this inner layout blocks touches, NOT whole phone -->
     <LinearLayout
+        android:id="@+id/blockContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="32dp">
+        android:padding="32dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="#0A0A0F">
 
         <TextView
             android:layout_width="56dp"
@@ -23,6 +30,7 @@
             android:layout_marginBottom="24dp"/>
 
         <TextView
+            android:id="@+id/tvBlockedTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Channels blocked"
@@ -40,19 +48,7 @@
             android:textColor="#8A8A8E"
             android:gravity="center"
             android:lineSpacingExtra="4dp"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:id="@+id/tvUnblockTimer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textColor="#A78BFA"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            android:layout_marginBottom="12dp"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_marginBottom="24dp"/>
 
         <TextView
             android:id="@+id/tvFrictionTimer"
@@ -62,28 +58,14 @@
             android:textColor="#B24CFF"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:visibility="visible"
-            android:layout_marginBottom="16dp"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_marginBottom="16dp"/>
 
-        <!-- BREATHING ANIMATION CIRCLE - One Sec style -->
         <FrameLayout
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_marginBottom="48dp">
-
-            <View
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:background="@drawable/bg_breathing_circle"/>
-
-            <View
-                android:id="@+id/breathingCircle"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:layout_gravity="center"
-                android:background="@drawable/bg_breathing_inner"/>
-
+            <View android:layout_width="120dp" android:layout_height="120dp" android:background="@drawable/bg_breathing_circle"/>
+            <View android:id="@+id/breathingCircle" android:layout_width="72dp" android:layout_height="72dp" android:layout_gravity="center" android:background="@drawable/bg_breathing_inner"/>
         </FrameLayout>
 
         <Button
@@ -94,19 +76,18 @@
             android:textAllCaps="false"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="#6A6A6E"
+            android:textColor="#FFFFFF"
             android:background="@drawable/bg_button_rounded"
             android:backgroundTint="#2A2A30"
-            android:enabled="false"
+            android:enabled="true"
+            android:clickable="true"
+            android:focusable="true"
             android:alpha="0.5"/>
 
         <TextView
+            android:id="@+id/tvUnblockTimer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Status is still available"
-            android:textSize="11sp"
-            android:textColor="#4A4A4E"
-            android:layout_marginTop="16dp"/>
-
+            android:visibility="gone"/>
     </LinearLayout>
 </FrameLayout>

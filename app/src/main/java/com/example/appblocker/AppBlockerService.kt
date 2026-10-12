@@ -42,7 +42,7 @@ class AppBlockerService : Service() {
     private var cachedIsTrialPeriod = false
     private var cachedPremiumExpiryDate: Long? = null
     private val internetPermissionCache = mutableMapOf<String, Boolean>()
-    
+
     private var lastOurAppCheck = 0L
     private var cachedOurAppInForeground = false
     private var lastWhitelistRefresh = 0L
@@ -157,7 +157,7 @@ class AppBlockerService : Service() {
         // 2. THEN do your DB work
         BlockerWorker.scheduleKeepAlive(applicationContext)
         (applicationContext as Application).registerActivityLifecycleCallbacks(lifecycleCallbacks)
-        
+
         val filter = IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_ON)
             addAction(Intent.ACTION_SCREEN_OFF)
@@ -171,7 +171,7 @@ class AppBlockerService : Service() {
         } else {
             registerReceiver(screenReceiver, filter)
         }
-        
+
         // Initialize screen state
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         isScreenOn = powerManager.isInteractive
@@ -237,13 +237,13 @@ class AppBlockerService : Service() {
         serviceScope.launch {
             val database = AppDatabase.getDatabase(applicationContext)
             val schedules = database.internetScheduleDao().getAllSchedulesList()
-            
+
             for (schedule in schedules) {
                 if (!schedule.isEnabled) continue
-                
+
                 val startTime = getTriggerTime(schedule.startHour, schedule.startMinute, 0)
                 val diff = startTime - now
-                
+
                 if (diff in (warningLeadTime - margin)..warningLeadTime) {
                     showWarningNotification(schedule)
                 }
@@ -285,11 +285,11 @@ class AppBlockerService : Service() {
             }
 
             val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-            
+
             while (isActive) {
                 try {
                     val now = System.currentTimeMillis()
-                    
+
                     // Safety check: Auto-stop if session expired
                     if (!FocusSessionManager.isSessionActive(this@AppBlockerService)) {
                         android.util.Log.d("AppBlocker", "Session inactive - stopping service")
@@ -320,25 +320,25 @@ class AppBlockerService : Service() {
 
                     // Priority 4: Get foreground app
                     val currentApp = getForegroundApp(usageStatsManager)
-                    
+
                     if (currentApp == null || currentApp == packageName || isWhitelistedApp(currentApp)) {
                         // Bug A: Call handleForegroundApp even when on Home to allow removal
                         if (currentApp != null) handleForegroundApp(currentApp)
                         delay(100)
                         continue
                     }
-                    
+
                     var shouldBlock = false
 
                     val hasPremiumAccess = cachedIsPremium || (cachedIsTrialPeriod && (cachedPremiumExpiryDate == null || now < cachedPremiumExpiryDate!!))
-                    
+
                     val nowCheck = System.currentTimeMillis()
                     val isQuickFromPrefs = FocusSessionManager.isSessionActive(this@AppBlockerService)
                     val isQuickFromRoom = cachedQuickBlockEndTime == Long.MAX_VALUE || cachedQuickBlockEndTime > nowCheck
                     val isQuickBlockActive = isQuickFromPrefs || isQuickFromRoom
 
                     // Log.d("AppBlocker", "FOREGROUND pkg=$currentApp quickPrefs=$isQuickFromPrefs quickRoom=$isQuickFromRoom blockedList=${cachedBlockedApps.map { it.pattern }}")
-                    
+
                     // Limit schedules for non-premium users
                     val applicableSchedules = if (hasPremiumAccess) cachedSchedules else cachedSchedules.take(3)
                     val activeSchedule = applicableSchedules.find { it.isActive() }
@@ -388,10 +388,13 @@ class AppBlockerService : Service() {
                             }
                         }
                     }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
-                    // Prevent loop from dying
+                    // Prevent loop from dying, but don't hide the reason
+                    Log.e("AppBlocker", "monitor loop error", e)
                 }
-                
+
                 delay(100)
             }
         }
@@ -401,9 +404,9 @@ class AppBlockerService : Service() {
         return try {
             val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             val appProcesses = activityManager.runningAppProcesses ?: return false
-            appProcesses.any { 
-                it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && 
-                it.processName == packageName 
+            appProcesses.any {
+                it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
+                        it.processName == packageName
             }
         } catch (e: Exception) {
             false
@@ -413,7 +416,7 @@ class AppBlockerService : Service() {
     private fun isTimeInBlockWindow(startH: Int, startM: Int, endH: Int, endM: Int, blockDays: Int): Boolean {
         if (startH == -1 || endH == -1) return false
         val now = Calendar.getInstance()
-        
+
         // Check day of week
         val dayOfWeek = now.get(Calendar.DAY_OF_WEEK) // Sun=1, Mon=2...
         val dayMask = 1 shl (dayOfWeek - 1)
@@ -449,16 +452,16 @@ class AppBlockerService : Service() {
 
     private fun isSettingsApp(packageName: String): Boolean {
         val lower = packageName.lowercase()
-        return lower.contains("settings") || 
-               lower.contains("permissioncontroller") ||
-               lower.contains("packageinstaller") ||
-               lower.contains("com.android.vending") // Block Play Store to prevent uninstall/bypass
+        return lower.contains("settings") ||
+                lower.contains("permissioncontroller") ||
+                lower.contains("packageinstaller") ||
+                lower.contains("com.android.vending") // Block Play Store to prevent uninstall/bypass
     }
 
     private fun isWhitelistedApp(packageName: String): Boolean {
         if (packageName == this.packageName) return true
         val normalizedPackage = packageName.lowercase().trim()
-        
+
         // Critical system components that should NEVER be blocked
         val criticalWhitelist = listOf(
             "android",
@@ -485,25 +488,25 @@ class AppBlockerService : Service() {
             "com.touchtype.swiftkey",
             "com.microsoft.emojikeyboard"
         )
-        
+
         if (criticalWhitelist.contains(normalizedPackage)) {
             if (normalizedPackage == "com.android.systemui" || normalizedPackage == "android") {
                 lastSystemUiTime = System.currentTimeMillis()
             }
             return true
         }
-        
+
         // Refresh whitelist cache every 30 seconds
         val now = System.currentTimeMillis()
         if (now - lastWhitelistRefresh > 30000) {
             try {
                 val telecomManager = getSystemService(Context.TELECOM_SERVICE) as TelecomManager
                 cachedDefaultDialer = telecomManager.defaultDialerPackage?.lowercase()
-                
+
                 val intent = Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_HOME) }
                 val resolveInfo = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
                 cachedLauncherPackage = resolveInfo?.activityInfo?.packageName?.lowercase()
-                
+
                 lastWhitelistRefresh = now
             } catch (e: Exception) {}
         }
@@ -511,10 +514,10 @@ class AppBlockerService : Service() {
         val essentialWhitelist = listOf(
             "com.google.android.googlequicksearchbox"
         )
-        
-        return normalizedPackage == cachedDefaultDialer || 
-               (normalizedPackage == cachedLauncherPackage && !normalizedPackage.contains("settings")) ||
-               essentialWhitelist.any { it.lowercase().trim() == normalizedPackage }
+
+        return normalizedPackage == cachedDefaultDialer ||
+                (normalizedPackage == cachedLauncherPackage && !normalizedPackage.contains("settings")) ||
+                essentialWhitelist.any { it.lowercase().trim() == normalizedPackage }
     }
 
     private fun getForegroundApp(usageStatsManager: UsageStatsManager): String? {
@@ -523,7 +526,7 @@ class AppBlockerService : Service() {
         val startTime = if (now - lastEventTime > 30000) now - 30000 else lastEventTime
         val events = usageStatsManager.queryEvents(startTime, now)
         val event = UsageEvents.Event()
-        
+
         while (events.hasNextEvent()) {
             events.getNextEvent(event)
             if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
@@ -531,14 +534,14 @@ class AppBlockerService : Service() {
                 lastEventTime = event.timeStamp
             }
         }
-        
+
         // Fallback if we haven't detected anything yet or if events are cleared
         if (lastForegroundApp == null) {
             val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, now - 1000 * 60, now)
             lastForegroundApp = stats?.maxByOrNull { it.lastTimeUsed }?.packageName
             lastEventTime = now
         }
-        
+
         return lastForegroundApp
     }
 
@@ -570,9 +573,22 @@ class AppBlockerService : Service() {
         return false
     }
 
+    private fun removeOverlayNow() {
+        val v = overlayView
+        overlayView = null
+        lastBlockedPkg = null
+        blockTimer?.cancel()
+        blockTimer = null
+        if (v != null) {
+            try {
+                (getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager).removeView(v)
+            } catch (_: Exception) {}
+        }
+    }
+
     private fun handleForegroundApp(foregroundPkg: String) {
         val now = System.currentTimeMillis()
-        
+
         // Bug A fix: Hard stop for 2.5 sec after Go Home click
         if (now < suppressBlockingUntil || isHandlingGoHome) {
             return
@@ -581,17 +597,16 @@ class AppBlockerService : Service() {
         // Debug for WhatsApp bug - log what Tecno really reports
         android.util.Log.d("AppBlocker", "CHECK: $foregroundPkg vs ${cachedBlockedApps.map { it.pattern }} -> blocked=${isAppBlocked(foregroundPkg)} overlay=${overlayView != null}")
 
-        // If overlay showing and user went to HOME or our app, remove overlay
+        // FIX: if an overlay is showing and the foreground app is NOT a blocked app
+        // (home, our app, dialer, settings, any other allowed app...), remove the overlay.
+        // Previously it was only removed for launchers/our app, so the overlay stayed on
+        // top of the dialer and other apps and made the phone unusable.
         if (overlayView != null) {
-            if (foregroundPkg == packageName || foregroundPkg.contains("launcher", ignoreCase = true) || 
-                foregroundPkg == "com.transsion.launcher" || foregroundPkg == "com.google.android.apps.nexuslauncher" || 
-                foregroundPkg == "com.sec.android.app.launcher") {
-                android.util.Log.d("AppBlocker", "Removing overlay - user went home")
-                try { (getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager).removeView(overlayView) } catch(_: Exception) {}
-                overlayView = null
-                lastBlockedPkg = null
+            if (!isAppBlocked(foregroundPkg)) {
+                android.util.Log.d("AppBlocker", "Removing overlay - foreground is $foregroundPkg (not blocked)")
+                removeOverlayNow()
             }
-            return // overlay already showing, don't create new one
+            return // overlay already showing (or just removed), don't create a new one this tick
         }
 
         // Debounce: don't spam overlay if same app
@@ -617,15 +632,15 @@ class AppBlockerService : Service() {
                 if (overlayView != null) return@post
 
                 val wm = getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
-                
+
                 val themedContext = android.view.ContextThemeWrapper(this@AppBlockerService, android.R.style.Theme_Material_Light)
                 val view = android.view.LayoutInflater.from(themedContext).inflate(R.layout.overlay_blocked, null)
-                
+
                 view.findViewById<android.widget.TextView>(R.id.tvBlockedAppName)?.text = "Stay focused! This app is blocked."
-                
+
                 val endTime = cachedQuickBlockEndTime.takeIf { it > 0 && it != Long.MAX_VALUE } ?: 0L
                 val remaining = endTime - System.currentTimeMillis()
-                
+
                 val timerView = view.findViewById<android.widget.TextView>(R.id.tvUnblockTimer)
                 if (remaining > 0 && timerView != null) {
                     timerView.visibility = android.view.View.VISIBLE
@@ -679,7 +694,7 @@ class AppBlockerService : Service() {
                     @Suppress("DEPRECATION")
                     android.view.WindowManager.LayoutParams.TYPE_PHONE
                 }
-                
+
                 val params = android.view.WindowManager.LayoutParams(
                     android.view.WindowManager.LayoutParams.MATCH_PARENT,
                     android.view.WindowManager.LayoutParams.MATCH_PARENT,
@@ -687,7 +702,7 @@ class AppBlockerService : Service() {
                     android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                     android.graphics.PixelFormat.TRANSLUCENT
                 )
-                
+
                 if (System.currentTimeMillis() >= suppressBlockingUntil && !isHandlingGoHome) {
                     wm.addView(view, params)
                     overlayView = view
@@ -727,7 +742,7 @@ class AppBlockerService : Service() {
         lastBlockedPkg = null
         cachedBlockedApps = emptyList() // clear in-memory list
         lastOverlayTime = 0L
-        
+
         // Clear foreground notification
         stopForeground(STOP_FOREGROUND_REMOVE)
 
@@ -749,7 +764,7 @@ class AppBlockerService : Service() {
                 "App Blocker Service Channel",
                 NotificationManager.IMPORTANCE_LOW
             )
-            
+
             val warningChannel = NotificationChannel(
                 WARNING_CHANNEL_ID,
                 "Schedule Warnings",
@@ -811,17 +826,17 @@ class AppBlockerService : Service() {
 
             for (schedule in schedules) {
                 if (!schedule.isEnabled) continue
-                
+
                 val startToday = getTriggerTime(schedule.startHour, schedule.startMinute, 0)
                 val endToday = getTriggerTime(schedule.endHour, schedule.endMinute, 0)
-                
+
                 potentialTriggers.add(startToday)
                 potentialTriggers.add(startToday - warningLeadTime)
                 potentialTriggers.add(endToday)
-                
+
                 val startTomorrow = getTriggerTime(schedule.startHour, schedule.startMinute, 1)
                 val endTomorrow = getTriggerTime(schedule.endHour, schedule.endMinute, 1)
-                
+
                 potentialTriggers.add(startTomorrow)
                 potentialTriggers.add(startTomorrow - warningLeadTime)
                 potentialTriggers.add(endTomorrow)
